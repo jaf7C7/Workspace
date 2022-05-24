@@ -1,0 +1,2 @@
+image/*; open %s &; test=test -n "$DISPLAY"
+application/*; open %s &; test=test -n "$DISPLAY"
