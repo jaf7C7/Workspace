@@ -1,0 +1,5 @@
+*.sw?
+dotfiles/.local/bin/bw
+dotfiles/.w3m/w3m*
+dotfiles/.w3m/history
+dotfiles/.lynx/lynx_session
