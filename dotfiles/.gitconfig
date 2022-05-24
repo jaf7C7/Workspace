@@ -4,7 +4,7 @@
 [color]
 	ui = false
 [core]
-	pager = less -F
+	pager = more
 	editor = ed -Gl
 [init]
 	defaultBranch = master
