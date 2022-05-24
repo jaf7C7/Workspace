@@ -96,13 +96,15 @@ zetify () {
 
 push () {
 	cd "$ZETTELKAST" || error "Could not enter $ZETTELKAST"
-	printf 'zet: push zettelkast to remote? [Y/n] '
-	while read -r; do
-		case "$REPLY" in
+	while {
+		printf 'zet: push zettelkast to remote? [Y/n] '
+		read -r reply
+	} do
+		case "$reply" in
 			[Nn]) return 1 ;;
 			[Yy]|"") break ;;
 			*)
-				echo "not recognised: $REPLY"
+				echo "not recognised: $reply"
 				continue
 			;;
 		esac
