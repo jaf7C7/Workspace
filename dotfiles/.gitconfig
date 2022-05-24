@@ -1,0 +1,10 @@
+[user]
+	name = Joss
+	email = jossappletonfox@protonmail.com
+[color]
+	ui = false
+[core]
+	pager = less -F
+	editor = ed -Gl
+[init]
+	defaultBranch = master
