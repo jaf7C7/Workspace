@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# Create markdown links to filenames.
+
+: ${ZETTELKAST:=~/Zettelkast}
+
+error () {
+	msg="$1"
+	printf '%s: %s\n' "${0##*/}" "$msg"
+	unset msg
+	exit 1
+} >&2
+
+main ()
+{
+	if [ $# -eq 0 ]; then
+		while read -r file; do
+			set -- "$@" "$file"
+		done
+	fi
+	for file do
+		file="$(fullpath "$file")"
+		[ -e "$file" ] || error "$file not found"
+		case "$file" in
+			"$ZETTELKAST"/*.md)
+				id="${file##*/}" id="${id%.md}"
+				IFS= read -r title <"$file"
+				id="$id(${title#\# })"
+			;;
+			~/*) id="${file##*/}" ;;
+			*) id="$file" ;;
+		esac
+		printf '[%s](file:%s)\n' "$id" "$file"
+	done
+}
+
+main "$@"
+

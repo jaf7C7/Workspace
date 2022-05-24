@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Backup to external hdd
+
+set -e
+
+main()
+{
+	case "$1" in
+		[Dd]ocuments|[Mm]usic|[Pp]ersonal|[Pp]ictures|[Ww]antlist|[Ww]orkspace)
+			# Capitalise first letter if you're too lazy to hit
+			# shift.
+			dir="$(echo "${1%${1#?}}" \
+				| tr '[:lower:]' '[:upper:]')${1#?}"
+			set -- ~/"$dir"
+		;;
+
+		"") set -- ~/Documents ~/Music ~/Personal ~/Pictures \
+			~/Projects ~/Wantlist ~/Workspace
+		;;
+
+		*)
+			printf '%s: unknown directory: %s\n' "${0##*/}" "$1"
+			exit 1
+		;;
+	esac
+
+	backup_dir=/media/joss/Tub.2.0
+
+	test -d "$backup_dir" || { echo "Could not find $backup_dir" && exit 1; }
+
+	for dir do
+		dir="${dir#/home/joss/}"
+		echo "Backing up: $dir -> ${backup_dir}/${dir}}"
+		mv "${backup_dir}/${dir}" "${backup_dir}/${dir}~"
+		cp -r ~/"${dir}" "${backup_dir}"
+	done
+}
+
+main "$@"
+

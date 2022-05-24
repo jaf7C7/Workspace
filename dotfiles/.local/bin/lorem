@@ -1,0 +1,93 @@
+#!/bin/bash
+#
+# Dummy text generator for html etc.
+
+usage () {
+	printf 'usage: lorem [[-t|--tag] <tagname>] <number>\n'
+	exit 1
+} >&2
+
+# Usage: print_random <args>...
+print_random () {
+	local arg=$((RANDOM % $# + 1))
+	printf '%s\n' "${!arg}" 
+}
+
+# TODO: 'sentence' option just makes one (potentially) very long sentence
+main ()
+{
+	while getopts ht:s opt; do
+		case "$opt" in
+			t) tag="$OPTARG" ;;
+			s) sentence=1 ;;
+			*) usage ;;
+		esac
+	done
+	shift $((OPTIND - 1))
+
+	case "$1" in
+		*[!0-9]*) usage ;;
+		*) count="$1" ;;
+	esac
+	shift
+
+	words=(
+		"a" "a" "ab" "ab" "accusamus" "accusantium" "ad" "ad"
+		"adipisci" "adipisicing" "alias" "aliqua" "aliquam" "aliquid"
+		"aliquip" "amet" "anim" "animi" "aperiam" "architecto"
+		"asperiores" "aspernatur" "assumenda" "at" "at" "atque" "aut"
+		"aut" "aute" "autem" "beatae" "blanditiis" "cillum" "commodi"
+		"commodo" "consectetaur" "consectetur" "consequat"
+		"consequatur" "consequuntur" "corporis" "corrupti" "culpa"
+		"cum" "cum" "cumque" "cupidatat" "cupiditate" "debitis"
+		"delectus" "deleniti" "deserunt" "dicta" "dignissimos"
+		"distinctio" "do" "do" "dolor" "dolore" "dolorem" "doloremque"
+		"dolores" "doloribus" "dolorum" "ducimus" "duis" "ea" "ea"
+		"eaque" "earum" "eius" "eiusmod" "eligendi" "elit" "enim" "eos"
+		"eos" "error" "esse" "est" "est" "et" "et" "eu" "eu" "eum"
+		"eum" "eveniet" "ex" "ex" "excepteur" "excepturi"
+		"exercitation" "exercitationem" "expedita" "explicabo" "facere"
+		"facilis" "fuga" "fugiat" "fugit" "harum" "hic" "hic" "id" "id"
+		"illo" "illum" "impedit" "in" "in" "incididunt" "incidunt"
+		"inventore" "ipsa" "ipsam" "ipsum" "irure" "iste" "itaque"
+		"iure" "iusto" "labore" "laboriosam" "laboris" "laborum"
+		"laudantium" "libero" "lorem" "magna" "magnam" "magni"
+		"maiores" "maxime" "minim" "minima" "minus" "modi" "molestiae"
+		"molestias" "mollit" "mollitia" "nam" "nam" "natus"
+		"necessitatibus" "nemo" "neque" "nesciunt" "nihil" "nisi"
+		"nobis" "non" "non" "nostrud" "nostrum" "nulla" "numquam"
+		"occaecat" "occaecati" "odio" "odit" "officia" "officiis"
+		"omnis" "optio" "pariatur" "perferendis" "perspiciatis"
+		"placeat" "porro" "possimus" "praesentium" "proident"
+		"provident" "quae" "quaerat" "quam" "quas" "quasi" "qui" "qui"
+		"quia" "quibusdam" "quidem" "quis" "quisquam" "quo" "quo"
+		"quod" "quos" "ratione" "recusandae" "reiciendis" "rem" "rem"
+		"repellat" "repellendus" "reprehenderit" "repudiandae" "rerum"
+		"saepe" "sapiente" "sed" "sed" "sequi" "similique" "sint" "sit"
+		"sit" "soluta" "sunt" "suscipit" "tempor" "tempora" "tempore"
+		"temporibus" "tenetur" "totam" "ullam" "ullamco" "unde" "ut"
+		"ut" "vel" "vel" "velit" "veniam" "veritatis" "vero" "vitae"
+		"voluptas" "voluptate" "voluptatem" "voluptates" "voluptatibus"
+		"voluptatum"
+	)
+
+	[[ -n "$tag" ]] && printf '<%s>' "$tag"
+
+	i=1
+	while (( i <= count )); do
+		word="$(print_random "${words[@]}")"
+		(( i == 1 )) && word="${word@u}"
+		printf '%s' "$word"
+		[[ -n "$sentence" ]] && (( i == RANDOM % count )) && printf ','
+		(( i < count )) && printf ' '
+		((i++))
+	done
+
+	[[ -n "$sentence" ]] && printf '.'
+	[[ -n "$tag" ]] && printf '</%s>' "$tag"
+
+	printf '\n'
+}
+
+main "$@"
+

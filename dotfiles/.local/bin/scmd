@@ -1,0 +1,161 @@
+#!/bin/bash
+#
+# Wrapper for screen
+
+: ${SCREENDIR:=/run/screen/S-$USER}
+
+usage () {
+	printf "%s: you're doing it wrong!\n" "${0##*/}" >&2
+	exit 1
+}
+
+cmd () {
+	screen ${session+-S "$session"} ${window+-p "$window"} -X "$@"
+}
+
+query () {
+	screen -X msgwait 0
+	printf '%s\n' \
+		"$(screen ${session+-S "$session"} ${window+-p "$window"} -Q "$@")"
+	screen -X msgwait 4
+}
+
+quit () {
+	cmd quit && echo "Session $session killed"
+}
+
+list_windows () {
+	query windows "$@"
+}
+
+list_sessions () {
+	set -- "$SCREENDIR"/*
+	for session; do
+		printf '%s\n' "${session##*/}"
+	done
+}
+
+title () {
+	if [[ -n "$session" ]] && [[ -z "$window" ]]; then
+		cmd sessionname "$@"
+	else
+		cmd title "$@"
+	fi
+}
+
+split () {
+	local dir
+	while (( $# > 0 )); do
+		case "$1" in
+			-[hv]) dir="$1" ;;
+			-l)
+				[[ -n $2 ]] || usage
+				dim="$2"
+				shift
+			;;
+			*) break ;;
+		esac
+		shift
+	done
+	cmd eval \
+		"split $dir" \
+		focus \
+		"${dim+resize "$dim"}" \
+		"${*+screen $*}"
+}
+
+target () {
+	[[ "$1" == ? ]] && set -- "${1}1"
+	count="${1#?}"
+	case "$1" in
+		+*) : ;;
+		-*) local dir='prev' ;;
+		*) usage ;;
+	esac
+	while (( "${i:=1}" <= "$count" )); do
+		screen -X focus ${dir}
+		((i++))
+	done
+}
+
+kill_all_sessions () {
+	set -- "$SCREENDIR"/*
+	for session do
+		session="${session##*/}"
+		screen -S "$session" -X quit
+	done
+	#screen -wipe 2>/dev/null
+}
+
+main ()
+{
+	for arg; do
+		case "$arg" in
+			-q)
+				shift
+				query "$@"
+				return
+			;;
+
+			-s)
+				session="$2"
+				shift 2
+			;;
+
+			-t)
+				shift
+				target "$1"
+				shift
+			;;
+
+			-T)
+				shift
+				title "$@"
+				return
+			;;
+
+			-w)
+				window="$2"
+				shift 2
+			;;
+
+			quit)
+				shift
+				quit "$@"
+				return
+			;;
+
+			lsw)
+				shift
+				list_windows "$@"
+				return
+			;;
+
+			ls)
+				shift
+				list_sessions
+				return
+			;;
+
+			split)
+				shift
+				split "$@"
+				return
+			;;
+
+			killall)
+				kill_all_sessions
+				return
+			;;
+
+			*)
+				continue
+			;;
+		esac
+	done
+
+	cmd "$@"
+}
+
+main "$@"
+

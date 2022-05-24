@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# Extract urls from a file
+
+main ()
+{
+	case "$BROWSER" in
+		lynx*) BROWSER='lynx -stdin -force_html' ;;
+		w3m*) BROWSER='w3m -T text/html' ;;
+	esac
+
+	if [ "$1" = '-n' ]; then
+		shift
+		nobrowser=1
+	fi
+
+	# Section 2: https://www.ietf.org/rfc/rfc2396.txt
+	regex='^.*\(http[=;/?:@&=+$,-.!~*'\''()%#a-zA-Z0-9]*\).*$'
+
+	if [ -n "$nobrowser" ]; then
+		cmd='s/'"$regex"'/\1/p'
+		sed -n "$cmd" "$@"
+	else
+		cmd='s/'"$regex"'/<a href="\1">\1<\/a><br>/p'
+		sed -n "$cmd" "$@" | exec $BROWSER
+	fi
+}
+
+main "$@"
+

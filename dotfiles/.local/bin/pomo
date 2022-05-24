@@ -1,0 +1,125 @@
+#!/bin/bash
+#
+# Simple pomodoro timer
+
+# TODO: Better alert
+# 	tmux 'lock-command', 'lock-client'
+# 	screen 'lockscreen', 'LOCKPRG'
+
+usage () {
+	echo 'usage: pomo [ start <min>[m[<sec>s]] | stop | reset | resume ]'
+	exit
+} >&2
+
+alert () {
+	local msg="$1" session="$2"
+	if [[ -n $TMUX ]]; then
+		tmux neww -t "$session" -n pomo sh -c "echo $msg | LESS= less"
+	elif [[ -n $STY ]]; then
+		screen -S "$session" -X screen -t pomo \
+			sh -c "echo $msg | LESS= less"
+	else
+		local i
+		for (( i=0; i < 3; i++ )); do
+			{ clear && printf '%s\n' "$msg"; } >"$parent"
+			sleep 1
+		done
+	fi
+}
+
+is_running () {
+	[[ -e $pid_log ]]
+}
+
+check () {
+	local T
+	[[ -e $time_log ]] && T="$(<"$time_log")"
+	if is_running; then
+		printf 'remaining: %02dm%02ds\n' $((T / 60)) $((T % 60))
+	elif [[ -n $T ]]; then
+		printf 'stopped: %02dm%02ds\n' $((T / 60)) $((T % 60))
+	else
+		! printf 'no timer info available\n' >&2
+	fi
+}
+
+timer () {
+	[[ -d $log_dir ]] || mkdir "$log_dir"
+	printf '%s\n' $$ >"$pid_log"
+
+	local time="$1" session="$2"
+	while (( time > 0 )); do
+		printf '%s\n' "$time" >"$time_log"
+		((time--))
+		sleep 1
+	done
+	alert 'Take a break!' "$session"
+
+	rm -r "$log_dir"
+}
+
+start () {
+	local seconds minutes time regex session
+	time="${1:-25m}"
+	if regex='^([0-9]+)m([0-9]+)s$'; [[ $time =~ $regex ]]; then
+		minutes="${BASH_REMATCH[1]}"
+		seconds="${BASH_REMATCH[2]}"
+	elif regex='^([0-9]+)([ms]?)$'; [[ $time =~ $regex ]]; then
+		case "${BASH_REMATCH[2]}" in
+			m|"") minutes="${BASH_REMATCH[1]}" ;;
+			s) seconds="${BASH_REMATCH[1]}" ;;
+		esac
+	else
+		usage
+	fi
+	time=$((${minutes:=0} * 60 + ${seconds:=0}))
+
+	if [[ -n $TMUX ]]; then
+		session="$(tmux display -p '#{session_id}')"
+		tmux new -ds pomodoro pomo timer "$time" "$session" 2>/dev/null
+	elif [[ -n $STY ]]; then
+		session="$STY"
+		screen -qlsS pomodoro
+		(( $? < 11 )) && screen -c/dev/null -dmS pomodoro \
+			pomo timer "$time" "$session"
+	else
+		pomo timer "$time" &
+	fi
+}
+
+stop () {
+	is_running && kill "$(<"$pid_log")"
+	rm "$pid_log"
+	check
+}
+
+reset () {
+	rm -r "$log_dir" 2>/dev/null
+}
+
+resume () {
+	start "$(<"$time_log")s"
+}
+
+main ()
+{
+	parent=/proc/$PPID/fd/0
+	log_dir=/tmp/pomo
+	time_log="${log_dir}/time"
+	pid_log="${log_dir}/pid"
+
+	(( $# > 3 )) && usage
+
+	case "$1" in
+		start) start "$2" ;;
+		stop) stop ;;
+		reset) reset ;;
+		resume) resume ;;
+		timer) timer "$2" "$3" ;;
+		"") check ;;
+		-h|--help|*) usage ;;
+	esac
+}
+
+main "$@"
+

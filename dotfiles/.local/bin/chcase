@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# `chcase` : Upper- or lower-case a word/char.
+#
+# Depends: `dd`
+#
+# Use of `dd` from:
+#	https://raw.githubusercontent.com/dylanaraps/shfm/master/shfm
+#
+# TODO: Only works for single-byte characters.
+
+usage () {
+	echo 'usage: chcase [ upper | lower | title ] [<string>|<stdin>]'
+	exit
+} >&2
+
+main ()
+{
+	set -f
+
+	while getopts :hult opt; do
+		case "$opt" in
+			u|l)
+				flag="$opt"
+				conv="${opt}case"
+			;;
+			t)
+				flag="$opt"
+				conv='ucase'
+			;;
+			h) usage ;;
+			*) ! usage ;;
+		esac
+	done
+
+	shift $((OPTIND - 1))
+
+	if [ $# -eq 0 ]; then
+		while read -r arg; do
+			# shellcheck disable=SC2086
+			set -- "$@" $arg
+		done
+	fi
+
+	for arg do
+		if [ "$flag" = 't' ]; then
+			arg="$(printf '%c\0' "$arg" \
+				| dd ibs=1 count=1 conv=ucase)${arg#?}"
+		else
+			arg="$(printf '%s' "$arg" \
+				| dd ibs=1 count="${#arg}" conv="$conv")"
+		fi
+		printf '%s ' "$arg"
+	done 2>/dev/null
+
+	printf '\n'
+}
+
+main "$@"
+

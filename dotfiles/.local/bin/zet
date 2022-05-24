@@ -1,0 +1,143 @@
+#!/bin/sh
+#
+# Zettelkast manager
+
+: "${EDITOR:=vi}"
+: "${ZETTELKAST:="$HOME/Zettelkast"}"
+: "${BROWSER:=w3m}"
+
+usage () {
+	echo 'usage: zet [<option>] [<query>]'
+	echo 'options: -h   print this message'
+	echo '         -i   open the index file in BROWSER'
+	echo '         -l   output file names as markdown links'
+	echo '         -N   create a new empty zettel (non-interactive)'
+	echo '         -n   open new zettel in EDITOR'
+	echo '         -p   push zettelkast to remote'
+	echo '         -S   search for <query> and return matching files'
+	echo '         -s   search and open results in BROWSER'
+	echo '         -    read new zettel from stdin'
+	exit
+} >&2
+
+error () {
+	printf '%s: %s\n' "${0##*/}" "$1" >&2
+	exit 1
+}
+
+id () {
+	date -u +'%y%d%m%H%M%S'
+}
+
+index () {
+	target="$ZETTELKAST/INDEX.md"
+	exec "$BROWSER" "$target"
+}
+
+new () {
+	z="$ZETTELKAST/$(id).md"
+	if [ "$flag" = 'editor' ]; then
+		"$EDITOR" "$z" && append_index "$z"
+	else
+		: >"$z"
+		print "$z"
+		append_index "$z"
+	fi
+}
+
+print () {
+	for arg do
+		if [ "$flag" = 'link' ]; then
+			linkify "$arg"
+		else
+			printf '%s\n' "$arg"
+		fi
+	done
+}
+
+append_index () {
+	for arg do
+		[ -e "$arg" ] || error "$arg not found"
+		printf '* '
+		linkify "$arg"
+	done >>"$ZETTELKAST/INDEX.md"
+}
+
+# shellcheck disable=SC2086,SC2046
+search () {
+	query="$*"
+	for arg do
+		regex="${regex+"$regex|"}$arg"
+	done
+	set -- $(grep -iEl "$regex" "$ZETTELKAST/"*[0-9].md)
+	[ $# -gt 0 ] || error "no results for \`$query'"
+	if [ "$flag" = 'browse' ]; then
+		case "$BROWSER" in
+			lynx*) BROWSER="$BROWSER -stdin -force_html" ;;
+			w3m*) BROWSER="$BROWSER -T text/html" ;;
+		esac
+		for result do
+			IFS= read -r title <"$result"
+			printf '<a href="file:%s">%s</a><br>\n' \
+				"$result" "$title"
+		done | exec $BROWSER
+	fi
+	print "$@"
+}
+
+zetify () {
+	z="$ZETTELKAST/$(id).md"
+	while IFS= read -r line; do
+		printf '%s\n' "$line"
+	done >"$z"
+	append_index "$z"
+	print "$z"
+}
+
+push () {
+	cd "$ZETTELKAST" || error "Could not enter $ZETTELKAST"
+	printf 'zet: push zettelkast to remote? [Y/n] '
+	while read -r; do
+		case "$REPLY" in
+			[Nn]) return 1 ;;
+			[Yy]|"") break ;;
+			*)
+				echo "not recognised: $REPLY"
+				continue
+			;;
+		esac
+	done
+	git add . && git commit -m 'New zettels' && git push
+}
+
+main ()
+{
+	[ -d "$ZETTELKAST" ] || error 'ZETTELKAST not found'
+
+	case "$1" in
+		''|-|-l) func=z
+	esac
+	while getopts :hilnNps:S: opt; do
+		case "$opt" in
+			[hiNp]) func="$opt" ;;
+			l) flag='link' ;;
+			n) func="$opt" flag='edit' ;;
+			S) func="$opt" query="$OPTARG" ;;
+			s) func="$opt" flag='browse' query="$OPTARG" ;;
+			*) error "try \`zet -h' for help" ;;
+		esac
+	done
+
+	case "$func" in
+		i) index ;;
+		n|N) new ;;
+		p) push ;;
+		s|S) search "$query" ;;
+		z) zetify ;;
+		h) usage ;;
+		*) ! usage ;;
+	esac
+}
+
+main "$@"
+

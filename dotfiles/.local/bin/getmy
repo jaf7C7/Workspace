@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Pull raw file from github dotfiles.
+
+main()
+{
+	printf '%s\n' "$(curl -s "https://raw.githubusercontent.com/jaf7c7/Workspace/master/dotfiles/$1")"
+}
+
+main "$@"
+

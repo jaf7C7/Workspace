@@ -1,0 +1,80 @@
+#!/bin/sh
+#
+# Search bookmark and local documents.
+
+: "${BOOKMARKS:="$HOME/.bookmark.html"}"
+: "${DOCUMENTS:="$HOME/Documents"}"
+
+usage () {
+	echo 'usage: ref [<option>] <keyword>'
+	echo 'options: -l	print results as markdown links to stdout'
+	exit
+}
+
+search () {
+	for arg do 
+		regex="${regex+"$regex.*"}$arg"
+		glob="${glob+"$glob*"}$arg"
+	done
+
+	grep -i "$regex" "$BOOKMARKS" | while IFS= read -r link; do
+		link="${link#*<[Ll][Ii]>}<br>"
+
+		if [ -n "$nobrowser" ]; then
+			# Extract url from href
+			url="${link#*href=}" url="${url%%>[[:alpha:]]*}"
+
+			# Remove quotes from href if present
+			# (not always present)
+			url="${url#\"}" url="${url%\"}"
+
+			link="$url"
+		fi
+
+		if [ -n "$markdown" ]; then
+			# Id is anchor text
+			id="${link%</*}" id="${id#*>}"
+
+			link="[$id]($url)"
+		fi
+		printf '%s\n' "$link"
+	done
+
+	for result in "$DOCUMENTS"/*"$glob"*; do
+		[ -e "$result" ] || continue
+		if [ -n "$markdown" ]; then
+			result="$(linkify "$result")"
+		else
+			url="file://$result"
+			id="${result##*/}"
+		fi
+		if [ -z "$nobrowser" ]; then
+			result="<a href=\"$url\">$id</a><br>"
+		fi
+		printf '%s\n' "$result"
+	done
+}
+
+main()
+{
+	tmp=/tmp/ref-$$.html
+
+	while getopts :mn opt; do
+		case "$opt" in
+			m) markdown=1 nobrowser=1 ;;
+			n) nobrowser=1 ;;
+			*) ! usage ;;
+		esac
+		shift $((OPTIND - 1))
+	done
+
+	if [ -n "$nobrowser" ]; then
+		search "$@"
+	else
+		search "$@" | pandoc -f markdown+smart -t html -o "$tmp"
+		exec "$BROWSER" "$tmp"
+	fi
+}
+
+main "$@"
+

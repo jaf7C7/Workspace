@@ -1,0 +1,110 @@
+#!/bin/sh
+#
+# `todo` : View/append to todo list.
+#
+# Depends: `ex`
+#
+# Environment:
+
+: "${ZETTELKAST:="$HOME/Zettelkast"}"
+: "${TODO_FILE:="$ZETTELKAST/222205114007.md"}"
+: "${TODO_EDITOR:="${EDITOR:=vi}"}"
+: "${TODO_BROWSER:="${BROWSER:=w3m}"}"
+
+usage () {
+	echo 'usage: todo [<option>] [<when>] [<input>]'
+	echo 'options:  -h  display this message'
+	echo '          -b  view TODO_FILE in BROWSER'
+	echo '          -e  edit TODO_FILE in EDITOR'
+	echo '          -a  append item <input> to list <when>'
+	echo '          -A  append each item <input> to list <when>'
+	echo 'when:  today | tomorrow | later'
+	echo 'input:  <string> | <stdin>'
+	echo
+	echo 'without args: print today'\''s list to stdout'
+	echo
+	echo 'if <when> is omitted `today'\'' is assumed'
+	echo 'if <input> is omitted input is read from stdin'
+	exit
+} >&2
+
+error () {
+	printf '%s: %s\n' "${0##*/}" "${@:-error}"
+	exit 1
+} >&2
+
+append () {
+	when="$1"
+	shift
+
+	if [ $# -eq 0 ]; then
+		while IFS= read -r line; do
+			set -- "$line"
+		done
+	fi
+
+	{
+		printf '%s\n' 'set ic' "/^##.*$when/;/^--/-i"
+		printf '* '
+		while [ $# -gt 0 ]; do
+			printf '%s\n' "$1"
+			shift
+			[ $# -gt 0 ] || break
+			if [ -n "$multi" ]; then
+				printf '* '
+			else
+				printf '  '
+			fi
+		done
+		printf '%s\n' '.' 'wq'
+	} | ex -s "$TODO_FILE"
+}
+
+view () {
+	when="$1"
+	shift
+
+	if [ -n "$edit" ]; then
+		exec "$TODO_EDITOR" "$TODO_FILE"
+	elif [ -n "$browse" ]; then
+		exec "$TODO_BROWSER" "$TODO_FILE"
+	else
+		printf '%s\n' 'set ic' "/^##.*$when/s/^#//" '.,/^--/-v/^$/p' \
+			'q!' | ex -s "$TODO_FILE"
+	fi
+}
+
+main () {
+	while getopts :aAehnb opt; do
+		case "$opt" in
+			a) append=1 ;;
+			A) append=1 multi=1 ;;
+			e) edit=1 ;;
+			b) browse=1 ;;
+			h) usage ;;
+			*) error "bad option: $opt" ;;
+		esac
+	done
+	shift $((OPTIND - 1))
+
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			today|tomorrow|later)
+				when="$1"
+				shift
+			;;
+			*) break ;;
+		esac
+	done
+
+	[ -z "$when" ] && when='today'
+
+	if [ -n "$append" ]; then
+		append "$when" "$@"
+	else
+		view "$when"
+	fi
+
+}
+
+main "$@"

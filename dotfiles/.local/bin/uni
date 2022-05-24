@@ -1,0 +1,21 @@
+#!/usr/bin/perl -CS
+#
+# E.g.  'uni 03bc' → 'μ'
+#       'uni 2192' → '→'
+# https://stackoverflow.com/questions/15210532/use-of-use-utf8-gives-me-wide-character-in-print
+
+# TODO: learn perl
+
+use warnings;
+use strict;
+
+if ($ARGV[0] eq '-s' || $ARGV[0] eq '--search') {
+	my $browser = $ENV{'BROWSER'};
+	my $query = $ARGV[1];
+	splice(@ARGV, 0, 2);
+	for (@ARGV) { $query .= "+" . $_; }
+	system("$browser https://unicode-table.com/en/search/?q=$query");
+} else {
+	eval "print(\"\\N{U+$ARGV[0]}\\n\")";
+}
+
