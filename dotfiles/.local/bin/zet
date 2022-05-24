@@ -14,6 +14,7 @@ usage () {
 	echo '         -N   create a new empty zettel (non-interactive)'
 	echo '         -n   open new zettel in EDITOR'
 	echo '         -p   push zettelkast to remote'
+	echo '         -d   delete a zettel'
 	echo '         -S   search for <query> and return matching files'
 	echo '         -s   search and open results in BROWSER'
 	echo '         -    read new zettel from stdin'
@@ -112,6 +113,26 @@ push () {
 	git add . && git commit -m 'New zettels' && git push
 }
 
+delete () {
+	if [ $# -eq 0 ]; then
+		while IFS= read -r line; do
+			set -- "$@" "$line"
+		done
+	fi
+
+	for arg do
+		file="${arg#"${arg%%/[!/]*}"}"
+		file="${file%%)*}"
+		if [ -e "$file" ]; then
+			echo "$file deleted"
+			rm "$file"
+		else
+			error "$file not found"
+		fi
+	done
+
+}
+
 main ()
 {
 	[ -d "$ZETTELKAST" ] || error 'ZETTELKAST not found'
@@ -119,9 +140,9 @@ main ()
 	case "$1" in
 		''|-|-l) func=z
 	esac
-	while getopts :hilnNps:S: opt; do
+	while getopts :dhilnNps:S: opt; do
 		case "$opt" in
-			[hiNp]) func="$opt" ;;
+			[dhiNp]) func="$opt" ;;
 			l) flag='link' ;;
 			n) func="$opt" flag='edit' ;;
 			S) func="$opt" query="$OPTARG" ;;
@@ -131,6 +152,7 @@ main ()
 	done
 
 	case "$func" in
+		d) delete ;;
 		i) index ;;
 		n|N) new ;;
 		p) push ;;
