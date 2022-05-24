@@ -1,0 +1,185 @@
+# ~/.w3m/keymap (modified)
+#
+# Ctrl  : C-, ^
+# Escape: ESC-, M-, ^[
+# Space : SPC, ' '
+# Tab   : TAB, ^i, ^I
+# Delete: DEL, ^?
+# Up    : UP, ^[[A
+# Down  : DOWN, ^[[B
+# Right : RIGHT, ^[[C
+# Left  : LEFT, ^[[D
+
+keymap	0	LINE_BEGIN
+
+keymap	~	GOTO_HOME
+keymap	!	EXEC_SHELL
+keymap	@	DEFINE_KEY
+keymap	#	LIST_MENU
+keymap	$	LINE_END
+keymap	%	INFO
+keymap	^	COMMAND "LINE_BEGIN; SEARCH_FORE '[^ 	]'"
+keymap	&	HELP
+keymap	*	REG_MARK
+keymap	(	NULL
+keymap	)	NULL
+keymap	-	SET_OPTION
+keymap	_	NULL
+keymap	=	LINE_INFO
+keymap	+	NULL
+keymap	{	SEARCH_BACK ^$
+keymap	}	SEARCH_FORE ^$
+keymap	[	NULL
+keymap	]	NULL
+keymap	\"	PREV_MARK
+keymap	\'	NEXT_MARK
+keymap	";"	SELECT_MENU
+keymap	:	COMMAND
+keymap	|	PIPE_BUF
+keymap	\\	SOURCE
+keymap	?	SEARCH_BACK
+keymap	/	SEARCH_FORE
+keymap	,	EXTERN
+keymap	>	NULL
+keymap	.	EXTERN_LINK
+keymap	<	NULL
+
+keymap	ESC	NULL
+keymap	SPC	NEXT_PAGE
+keymap	TAB	NEXT_LINK
+keymap	^[[Z	PREV_LINK
+keymap	DEL	HISTORY
+keymap	UP	NULL
+keymap	DOWN	NULL
+keymap	RIGHT	NULL
+keymap	LEFT	NULL
+
+keymap	a	VIEW_BOOKMARK
+keymap	b	PREV_PAGE
+keymap	c	NULL
+keymap	d	NEXT_HALF_PAGE
+keymap	e	UP
+keymap	f	NEXT_PAGE
+keymap	g	BEGIN
+keymap	h	MOVE_LEFT1
+keymap	i	VIEW_IMAGE
+keymap	j	MOVE_DOWN1
+keymap	k	MOVE_UP1
+keymap	l	MOVE_RIGHT1
+keymap	m	MARK
+keymap	n	SEARCH_NEXT
+keymap	o	GOTO
+keymap	p	PEEK_LINK
+keymap	q	QUIT
+keymap	r	NULL
+keymap	s	SAVE_LINK
+keymap	t	NULL
+keymap	u	PREV_HALF_PAGE
+keymap	v	EDIT
+keymap	w	NEXT_WORD
+keymap	x	NULL
+keymap	y	DOWN
+keymap	z	CENTER_V
+
+keymap	A	ADD_BOOKMARK
+keymap	B	BACK
+keymap	C	NULL
+keymap	D	NULL
+keymap	E	LOAD
+keymap	F	NULL
+keymap	G	END
+keymap	H	CURSOR_TOP
+keymap	I	GOTO /cgi-bin/w3mopen.cgi?/home/joss/Zettelkast/INDEX.md
+keymap	J	NULL
+keymap	K	NULL
+keymap	L	CURSOR_BOTTOM
+keymap	M	CURSOR_MIDDLE
+keymap	N	SEARCH_PREV
+keymap	O	OPTIONS
+keymap	P	NULL
+keymap	Q	EXIT
+keymap	R	NULL
+keymap	S	SAVE
+keymap	T	NULL
+keymap	U	UNDO
+keymap	V	NULL
+keymap	W	PREV_WORD
+keymap	X	NULL
+keymap	Y	NULL
+keymap	Z	COMMAND "CENTER_V; NEXT_HALF_PAGE; UP"
+
+keymap	C-a	NULL
+keymap	C-b	NULL
+keymap	C-c	NULL
+keymap	C-d	NULL
+keymap	C-e	NULL
+keymap	C-f	NULL
+keymap	C-g	PEEK
+keymap	C-h	NULL
+keymap	C-i	NEXT_LINK
+keymap	C-j	GOTO_LINK
+keymap	C-k	NULL
+keymap	C-l	REDRAW
+keymap	C-m	GOTO_LINK
+keymap	C-n	NEXT
+keymap	C-o	NULL
+keymap	C-p	PREV
+keymap	C-q	NULL
+keymap	C-r	RELOAD
+keymap	C-s	NULL
+keymap	C-t	NULL
+keymap	C-u	NULL
+keymap	C-v	NULL
+keymap	C-w	NULL
+keymap	C-x	NULL
+keymap	C-y	NULL
+keymap	C-z	SUSPEND
+keymap	C-_	NULL
+keymap	C-@	NULL
+
+keymap	M-a	NULL
+keymap	M-b	NULL
+keymap	M-c	NULL
+keymap	M-d	NULL
+keymap	M-e	NULL
+keymap	M-f	NULL
+keymap	M-g	NULL
+keymap	M-h	NULL
+keymap	M-i	NULL
+keymap	M-j	NULL
+keymap	M-k	NULL
+keymap	M-l	NULL
+keymap	M-m	NULL
+keymap	M-n	NULL
+keymap	M-o	NULL
+keymap	M-p	NULL
+keymap	M-q	NULL
+keymap	M-r	REINIT
+keymap	M-s	NULL
+keymap	M-t	NULL
+keymap	M-u	NULL
+keymap	M-v	NULL
+keymap	M-w	NULL
+keymap	M-x	NULL
+keymap	M-y	NULL
+keymap	M-z	NULL
+keymap	M-I	NULL
+keymap	M-W	NULL
+keymap	M-M	NULL
+keymap	M-TAB	NULL
+keymap	M-:	NULL
+keymap	M-<	NULL
+keymap	M->	NULL
+keymap	M-C-j	NULL
+keymap	M-C-m	NULL
+
+keymap	^[[6~	NULL
+keymap	^[[5~	NULL
+keymap	^[[4~	NULL
+keymap	^[[3~	NULL
+keymap	^[[2~	NULL
+keymap	^[[1~	NULL
+keymap	^[[28~	NULL
+keymap	^[[E	NULL
+keymap	^[[L	NULL
+
