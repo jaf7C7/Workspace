@@ -1,0 +1,123 @@
+#
+# Default styles correspond to HTML tags.
+#
+# The next line (beginning with "em") means:  use dim if mono, otherwise
+# default on <defaultbackground>
+# em:        dim:            default:default
+#
+# Each Foreground and Background value must be one of:
+#   black         red            green         brown
+#   blue          magenta        cyan          lightgray
+#   gray          brightred      brightgreen   yellow
+#   brightblue    brightmagenta  brightcyan    white
+#
+
+# Top title bar (disabled in lynx.cfg)
+title:                    bold:             bold
+forwbackw.arrow:          default:          default
+
+# Headings
+h1:                       bold:             bold
+h2:                       bold:             bold
+h3:                       bold:             bold
+h4:                       bold:             bold
+h5:                       bold:             bold
+h6:                       bold:             bold
+
+# Links
+a:                        underline:        blue
+
+# Paragraphs etc.
+p:                        default:          default
+i:                        default:          default
+em:                       bold:             underline
+strong:                   default:          underline
+b:                        bold:             bold
+blockquote:               default:          default
+
+# Tables
+th:                       bold:             bold
+
+# Images / iframes
+img:                      dim:              brown
+iframe:                   dim:              brown
+
+# Code snippets
+code:                     default:          default
+pre:                      default:          default
+
+#
+# Special styles - not corresponding directly to HTML tags
+#
+#    alert    - status bar, when message begins "Alert".
+#    alink    - active link
+#    dim      - default attributes
+#    status   - status bar
+#    whereis  - whereis search target
+#
+
+alink:                     reverse:       underline+cyan
+status:                    reverse:       reverse
+alert:                     bold:          white:red
+whereis:                   reverse:       reverse
+
+# Pop up select menu
+menu.bg:                   default:       default:default
+menu.frame:                default:       default:default
+menu.entry:                default:       default:default
+menu.n:                    default:       default:default
+menu.active:               default:       default:default
+menu.sb:                   default:       default:default
+
+#
+# Useful overrides
+#
+# Styles with classes - <ul class=default> etc.
+# E.g.    ul.default -> ul element with class=default
+#
+# Doesn't work so well for heavily nested elements and elements with
+# more than one class.
+# 
+
+# Duckduckgo results page link text
+span.link-text:            dim:           green
+
+# Posix manual page command synopsis
+blockquote.synopsis:       default:       default
+
+# Stackoverflow question title:
+a.question-hyperlink:      reverse:       bold
+
+# Github lastest commit message
+a.Link--secondary:         dim:           green
+
+#
+# Special handling for link.
+#
+# Special cases for link - the rel or title is appended after the class.
+# <link rel=next class=default href="1">
+#
+
+#link:                      default:       default
+#link.default.next:         default:       default
+#link.default.prev:         default:       default
+#link.default.prev:         default:       default
+#link.default.next:         default:       default
+#link.default.toc:          default:       default
+
+#
+# Prettysrc syntax highlighting
+#
+
+span.htmlsrc_comment:      default:       default
+span.htmlsrc_tag:          dim:           blue
+span.htmlsrc_entire:       default:       default
+span.htmlsrc_attrib:       default:       default
+span.htmlsrc_attrval:      default:       default
+span.htmlsrc_href:         default:       default
+span.htmlsrc_abracket:     default:       default
+span.htmlsrc_entity:       default:       default
+span.htmlsrc_badseq:       default:       default
+span.htmlsrc_badtag:       default:       default
+span.htmlsrc_badattr:      default:       default
+span.htmlsrc_sgmlspecial:  default:       default
