@@ -1,0 +1,290 @@
+#
+# Shell options
+#
+
+# Quit if not interactive
+case "$-" in
+	*i*) : ;;
+	*) exit ;;
+esac
+
+# Vi mode line editing
+set -o vi
+
+#
+# Environment variables
+#
+
+set -a
+
+# Encourage POSIX compliance
+POSIXLY_CORRECT=1
+ENV=~/.shrc
+
+# Timezone and locale
+TZ='Europe/London'
+LANG=en_GB.UTF-8
+
+# File system
+STOW_DIR=~/Workspace
+DOTFILES="$STOW_DIR/dotfiles"
+BIN=~/.local/bin
+CGI_BIN=~/.local/cgi-bin
+ZETTELKAST=~/Zettelkast
+TODO_FILE="$ZETTELKAST/222205114007.md"
+BOOKMARKS="$ZETTELKAST/222205121754.md"
+DOCUMENTS=~/Documents
+BAT_DIR=/sys/class/power_supply/BAT1
+case "$PATH" in
+	"$BIN:"*) : ;;
+	*) PATH="$BIN:$PATH" ;;
+esac
+CDPATH=.:~:~/Workspace:~/.local:~/Projects
+
+# Editor
+EDITOR=vi
+EXINIT='set ai ts=8 sw=8 nows noic noflash'
+PARINIT='rTbgqR B=.,?_A_a Q=_s>|'
+
+# Pager
+PAGER=less
+LESS='-Fgj3$Rx4$'
+if [ -x /usr/bin/lesspipe ]; then
+	LESSOPEN='| /usr/bin/lesspipe %s'
+	LESSCLOSE='/usr/bin/lesspipe %s %s'
+fi
+LESSHISTFILE='-'
+MANPAGER=w3m
+MANLESS='--Manual page $MAN_PN--?PB(%PB\%).'
+
+# Browser
+BROWSER=w3m
+GUIBROWSER=firefox
+WWW_HOME=https://lite.duckduckgo.com/lite
+
+# Bash
+if [ -n "$BASH_VERSION" ]; then
+	HISTCONTROL=ignoreboth:erasedups:
+fi
+
+# Xterm
+XFT_DEBUG=3
+
+# Node
+NODE_DISABLE_COLORS=1
+
+# NPM permissions
+# https://github.com/sindresorhus/guides/blob/main/npm-global-without-sudo.md
+# https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally/
+NPM_CONFIG_PREFIX=~/.npm-global
+NPM_BIN="$NPM_CONFIG_PREFIX/bin"
+case "$PATH" in
+	*"$NPM_BIN") : ;;
+	*) PATH="$PATH:$NPM_BIN" ;;
+esac
+if command -v manpath >/dev/null 2>&1; then
+	NPM_MANPATH="$NPM_CONFIG_PREFIX/share/man"
+	case "$MANPATH" in
+		*"$NPM_MANPATH") : ;;
+		*) MANPATH="$MANPATH:$NPM_MANPATH" ;;
+	esac
+fi
+
+# Fix qt applications (okular) not following system theme
+# https://askubuntu.com/a/1044432
+QT_QPA_PLATFORMTHEME=gtk2
+QT_QPA_PLATFORM=wayland
+
+set +a
+
+#
+# Prompt
+#
+
+# '[19%]joss@lenovo:~/Workspace/dotfiles(master)$ '
+__ps1 () {
+	case "$PWD" in
+		~/*|~) __PWD="~${PWD#~}" ;;
+		*) __PWD="$PWD" ;;
+	esac
+
+	if [ -z "$TMUX" ] && [ -z "$STY" ]; then
+		# Battery alert
+		b="[\[0;31m\]$(bat)\[\e[0m\]]"
+		if ! bat --quiet; then
+			case "$PS1" in
+				"$b"*) : ;;
+				*)
+					__OLDPS1="$PS1"
+					export PS1="$b$PS1"
+				;;
+			esac
+		elif [ -n "$__OLDPS1" ]; then
+			PS1="$__OLDPS1"
+		fi
+		unset b __OLDPS1
+	fi
+
+	if [ -n "$PS1_USER" ]; then
+		printf '%s' "$USER"
+	fi
+
+	if [ -n "$PS1_HOST" ]; then
+		[ -n "$PS1_USER" ] && printf '@'
+		printf '%s' "$HOSTNAME"
+	fi
+
+	if [ -n "$PS1_DIR" ]; then
+		[ -n "$PS1_HOST" ] && printf ':'
+		printf '%s' "$__PWD"
+		unset __PWD
+	fi
+
+	if [ -n "$PS1_GIT" ]; then
+		b="$(git branch --show-current 2>/dev/null)"
+		[ -n "$b" ] && printf '(%s)' "$b"
+		unset b
+	fi
+}
+
+ps1 () {
+	usage () {
+		echo 'usage:    ps1 [ show | hide ] [ all | <segment>... ]'
+		echo 'segments: `user'\'', `host'\'', `dir'\'', `git'\'''
+		return 1
+	}
+
+	show () {
+		[ "$1" = 'all' ] && set -- host user dir git
+		for arg do
+			case "$arg" in
+				user) export PS1_USER=1 ;;
+				host) export PS1_HOST=1 ;;
+				dir) export PS1_DIR=1 ;;
+				git) export PS1_GIT=1 ;;
+				*) usage ;;
+			esac
+		done
+		unset arg
+	}
+
+	hide () {
+		[ "$1" = 'all' ] && set -- host user dir git
+		for arg do
+			case "$arg" in
+				host) unset PS1_HOST ;;
+				user) unset PS1_USER ;;
+				dir) unset PS1_DIR ;;
+				git) unset PS1_GIT ;;
+				*) usage ;;
+			esac
+		done
+		unset arg
+	}
+
+	case "$1" in
+		short) hide all ;;
+		long) show all ;;
+		show)
+			shift
+			show "$@"
+		;;
+		hide)
+			shift
+			hide "$@"
+		;;
+		*) usage ;;
+	esac
+	unset usage show hide
+}
+
+ps1 short
+
+PS1='$(__ps1)$ '
+
+if [ -n "$BASH_VERSION" ];then
+	# Update tmux/screen window title
+	PROMPT_COMMAND='printf '\''\e_%s\e\\'\'' "${PWD/~/\~}"'
+else
+	# Shell name in prompt
+	PS1="$0\$ "
+fi
+
+#
+# Aliases
+#
+
+alias ?='echo $?'
+alias ..='up'
+alias c='clear'
+alias ed='ed -lG'
+alias jobs='jobs -l'
+alias jq='jq --tab --indent 4 --monochrome-output'
+alias sed='sed --posix'
+alias tree='tree -n'
+alias vi='hvi'
+alias x='exit'
+alias z='fg %-'
+
+#
+# Functions
+#
+
+bw () {
+	trap 'xsel --clipboard --delete; return 1' INT STOP
+	case "$*" in
+		unlock) export BW_SESSION="$(command bw unlock --raw)" ;;
+		'get password '*)
+			command bw "$@" | xsel --clipboard --input
+			sleep 10
+			xsel --clipboard --delete
+		;;
+		*) command bw "$@" ;;
+	esac
+	trap - INT STOP
+}
+
+cd () {
+	command cd "$@" >/dev/null
+	[ -n "$PS1_DIR" ] || pwd -P
+}
+
+hotspot () {
+	case "$1" in
+		oneplus) nmcli connection up 'OnePlus 6T' ;;
+		iphone) nmcli connection up 'Faye’s iPhone' ;;
+		*) ! echo 'usage: hs [ oneplus | iphone ]' >&2
+	esac
+}
+
+lastcmd () {
+	local cmd=$(fc -ln -1 "$1" "$1")
+	printf '%s\n' "${cmd##[[:space:]]}"
+}
+
+today () {
+	day="$(date +'%a')"
+	echo "# $day"
+	tasks="$(sed -e '/'"$day"'/,/^[#-]/!d' -e '/^[[:space:]]*\*/!d' \
+	         -e '/^$/d' ~/TODO.md)"
+	if [ -n "$tasks" ]; then
+		echo "$tasks"
+	else
+		echo "No tasks"
+	fi
+	unset day tasks
+}
+
+up () {
+	i=1 path='..'
+	while [ "$i" -lt "${1:-1}" ]; do
+		path="$path/.."
+		i=$((i + 1))
+	done
+	cd "$path"
+	unset i path
+}
+
+# Daily todo-list
+[ -z "$STY" ] && [ -z "$TMUX" ] && today
+
