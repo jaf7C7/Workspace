@@ -37,7 +37,7 @@ index () {
 
 new () {
 	z="$ZETTELKAST/$(id).md"
-	if [ "$flag" = 'editor' ]; then
+	if [ "$flag" = 'edit' ]; then
 		"$EDITOR" "$z" && append_index "$z"
 	else
 		: >"$z"
