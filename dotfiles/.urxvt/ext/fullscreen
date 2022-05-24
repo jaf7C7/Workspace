@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+#
+# Toggle fullscreen
+#
+# Requires package 'wmctrl' and the following resources:
+# 'URxvt.perl-ext-common: fullscreen'
+# 'URxvt.keysym.Meta-Return: perl:fullscreen:switch'
+
+sub on_user_command {
+    my ($self, $cmd) = @_;
+    if ($cmd eq "fullscreen:switch") {
+        my $dummy = `wmctrl -r :ACTIVE: -b toggle,fullscreen` ;
+    }
+}
