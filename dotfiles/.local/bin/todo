@@ -39,7 +39,7 @@ append () {
 
 	if [ $# -eq 0 ]; then
 		while IFS= read -r line; do
-			set -- "$line"
+			set -- "$@" "$line"
 		done
 	fi
 
@@ -74,6 +74,13 @@ view () {
 	fi
 }
 
+update () {
+	# Append everything from `Tomorrow` to `Today`.
+	printf '%s\n' '/Tomorrow/+;/^--/-v/^$/m?^--?-2' 'wq' \
+		| ex -s "$TODO_FILE"
+	exit
+}
+
 main () {
 	while getopts :aAehnb opt; do
 		case "$opt" in
@@ -93,6 +100,7 @@ main () {
 				when="$1"
 				shift
 			;;
+			update) update ;;
 			*) break ;;
 		esac
 	done
