@@ -1,0 +1,43 @@
+# Set default term to get full-color display.
+term screen-256color
+
+# Don't update terminal title (no hardstatus)
+termcapinfo * hs@
+
+# Set some defaults
+startup_message off
+deflogin off
+defflow off
+vbell off
+defutf8 on
+altscreen on
+layout save default
+
+# Start the battery monitor but not when reloading the config, or
+# when it's already running in another session.
+exec sh -c 'screen -X setenv _SCREEN_RELOAD 1'
+screen 99 sh -c '[ -z "$(screen -X msgwait 0; screen -Q echo \$_SCREEN_RELOAD; screen -X msgwait 4)" ] && { ! tmux has -t battery_monitor && { screen -qlsS battery_monitor; [ $? -lt 11 ]; } && screen -c/dev/null -dmS battery_monitor bat --monitor; screen 0; }'
+unsetenv _SCREEN_RELOAD
+
+# Windowlist shows window hardstatus or current command.
+windowlist title 'Num Name%30L=Status/Cmd%-5=Flags'
+windowlist string '%3n %t%30L=%?%h%:%x%?%L>%-5=%f'
+
+# Handy stuff
+bind ^G
+bind x kill
+bind s screen -t 'sessions' sh -c 'screen -ls | less'
+bind z exec sh -c '[ -z "$(screen -Q echo \$_SCREEN_ZOOM)" ] && screen -X eval "setenv _SCREEN_ZOOM 1" "layout select default" "layout save default" "layout save zoom" "only" || screen -X eval "unsetenv _SCREEN_ZOOM" "layout remove zoom"'
+
+# X clipboard push/pull
+bind < exec sh -c 'xsel -bo > /tmp/screen-exchange && screen -X eval readbuf "echo \"Slurped X clipboard into buffer\""'
+bind > exec sh -c 'screen -X eval writebuf "echo \"Pushed paste buffer to X clipboard\"" && xsel -bi < /tmp/screen-exchange'
+
+# Better paste into vim (replace with ':set ai'/':set noai' for vi)
+bind ^] eval "stuff ^O':set paste'^M" "paste ." "stuff ^O':set nopaste'^M"
+
+# Debian adds ":kB: focus prev" binding (shift-tab -> focus prev)
+# but it doesn't work all the time; so just remove it.
+#bind -k kB focus prev
+bind -k kB
+
