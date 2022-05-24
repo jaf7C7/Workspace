@@ -1,0 +1,151 @@
+!
+! NOTE: To avoid doing xrdb -merge, move this file to ~/.Xdefaults-$HOSTNAME
+! and X applications will read it automatically on startup. Though resources
+! must be specified explicitly per application, e.g.
+!	XTerm*foreground ...
+!	URxvt*foreground ...
+! even if they have the same value.
+!
+
+!
+! Colours
+!
+
+#define S_foreground rgb:db/db/db
+#define S_background rgb:24/24/24
+#define S_black      rgb:21/21/21
+#define S_red        rgb:da/43/43
+#define S_green      rgb:78/c4/7a
+#define S_yellow     rgb:c6/a5/5e
+#define S_blue       rgb:95/9a/dd
+#define S_magenta    rgb:e0/6f/d6
+#define S_cyan       rgb:76/c9/c9
+#define S_lightgrey  rgb:9b/9b/9b
+#define S_darkgrey   rgb:42/42/42
+
+#define S_color0     S_black
+#define S_color8     S_darkgrey
+#define S_color1     S_red
+#define S_color9     S_red
+#define S_color2     S_green
+#define S_color10    S_green
+#define S_color3     S_yellow
+#define S_color11    S_yellow
+#define S_color4     S_blue
+#define S_color12    S_blue
+#define S_color5     S_magenta
+#define S_color13    S_magenta
+#define S_color6     S_cyan
+#define S_color14    S_cyan
+#define S_color7     S_lightgrey
+#define S_color15    S_foreground
+
+!
+! Xterm
+!
+
+! Advertise 256 color support (to avoid 8 color display)
+XTerm.termName: xterm-256color
+
+! Make alt work as expected
+XTerm*metaSendsEscape: true
+
+! Font
+XTerm*locale: true
+XTerm*faceName: DejaVuSansMono
+XTerm*faceSize: 13
+XTerm*forceBoxChars: true
+
+! Internal border (to avoid blank last line)
+XTerm*internalBorder: 1
+
+! Scrollback can interfere with tmux/screen
+XTerm*saveLines: 0
+
+! Cursor
+XTerm*cursorBlink: true
+XTerm*cursorOnTime: 500
+XTerm*cursorOffTime: 500
+
+! Colors
+XTerm*foreground: S_foreground
+XTerm*background: S_background
+XTerm*color0:     S_color0
+XTerm*color1:     S_color1
+XTerm*color2:     S_color2
+XTerm*color3:     S_color3
+XTerm*color4:     S_color4
+XTerm*color5:     S_color5
+XTerm*color6:     S_color6
+XTerm*color7:     S_color7
+XTerm*color8:     S_color8
+XTerm*color9:     S_color9
+XTerm*color10:    S_color10
+XTerm*color11:    S_color11
+XTerm*color12:    S_color12
+XTerm*color13:    S_color13
+XTerm*color14:    S_color14
+XTerm*color15:    S_color15
+XTerm*boldColors: false
+
+! Ctrl-L redraws window and types ^L
+XTerm*translations: #override \n\
+	Ctrl <Key> L: redraw() string(0x0c) \n
+
+! Ignore whitespace when selecting
+XTerm*highlightSelection: true
+XTerm*trimSelection: true
+
+!
+! URxvt
+!
+
+! Advertise 256 color support (to avoid 8 color display)
+URxvt*termName: rxvt-unicode-256color
+
+! No login shell
+URxvt*loginShell: false
+
+! No scrollbar
+URxvt*scrollBar: false
+
+! Scrollback buffer can interfere with tmux/screen
+URxvt*saveLines: 0
+
+! Toggle fullscreen with Alt-Return
+URxvt.perl-ext-common: fullscreen
+URxvt.keysym.Meta-Return: perl:fullscreen:switch
+
+! Fonts
+URxvt*font: xft:mono:size=13,xft:Symbola,xft:Noto Color Emoji
+URxvt*letterSpace: -1.5
+
+! Bold/blink text does not have high intensity fg/bg
+URxvt*intensityStyles: false
+
+! Internal border (to avoid blank last line with certain fonts)
+URxvt*internalBorder: 1
+
+! Cursor
+URxvt*cursorBlink: true
+
+! Colors
+URxvt*foreground: S_foreground
+URxvt*background: S_background
+URxvt*color0:     S_color0
+URxvt*color1:     S_color1
+URxvt*color2:     S_color2
+URxvt*color3:     S_color3
+URxvt*color4:     S_color4
+URxvt*color5:     S_color5
+URxvt*color6:     S_color6
+URxvt*color7:     S_color7
+URxvt*color8:     S_color8
+URxvt*color9:     S_color9
+URxvt*color10:    S_color10
+URxvt*color11:    S_color11
+URxvt*color12:    S_color12
+URxvt*color13:    S_color13
+URxvt*color14:    S_color14
+URxvt*color15:    S_color15
+
