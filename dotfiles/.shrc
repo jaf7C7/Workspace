@@ -253,26 +253,13 @@ hotspot () {
 	case "$1" in
 		oneplus) nmcli connection up 'OnePlus 6T' ;;
 		iphone) nmcli connection up 'Faye’s iPhone' ;;
-		*) ! echo 'usage: hs [ oneplus | iphone ]' >&2
+		*) ! echo 'usage: hotspot [ oneplus | iphone ]' >&2
 	esac
 }
 
 lastcmd () {
 	local cmd=$(fc -ln -1 "$1" "$1")
 	printf '%s\n' "${cmd##[[:space:]]}"
-}
-
-today () {
-	day="$(date +'%a')"
-	echo "# $day"
-	tasks="$(sed -e '/'"$day"'/,/^[#-]/!d' -e '/^[[:space:]]*\*/!d' \
-	         -e '/^$/d' ~/TODO.md)"
-	if [ -n "$tasks" ]; then
-		echo "$tasks"
-	else
-		echo "No tasks"
-	fi
-	unset day tasks
 }
 
 up () {
@@ -285,6 +272,6 @@ up () {
 	unset i path
 }
 
-# Daily todo-list
-[ -z "$STY" ] && [ -z "$TMUX" ] && today
+# Check tasks
+todo
 
