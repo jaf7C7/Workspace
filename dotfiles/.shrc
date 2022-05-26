@@ -222,7 +222,7 @@ alias jobs='jobs -l'
 alias jq='jq --tab --indent 4 --monochrome-output'
 alias sed='sed --posix'
 alias tree='tree -n'
-alias vi='hvi'
+alias vi='nvi'
 alias x='exit'
 alias z='fg %-'
 
