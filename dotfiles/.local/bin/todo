@@ -45,7 +45,7 @@ append () {
 		printf '%s\n' 'set ic' "/^##.*$when/;/^--/-i"
 		printf '* '
 		while [ $# -gt 0 ]; do
-			printf '%s\n' "$1"
+			printf '%s\n' "${1#\* }"
 			shift
 			[ $# -gt 0 ] || break
 			if [ -n "$multi" ]; then
