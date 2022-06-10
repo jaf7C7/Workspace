@@ -31,7 +31,7 @@ id () {
 }
 
 index () {
-	target="$ZETTELKAST/INDEX.md"
+	target="zet:$ZETTELKAST/INDEX.md"
 	exec "$BROWSER" "$target"
 }
 
@@ -76,7 +76,7 @@ search () {
 		tmp=/tmp/zet.html
 		for result do
 			IFS= read -r title <"$result"
-			printf '<a href="ztp:%s">%s</a><br>\n' \
+			printf '<a href="zet:%s">%s</a><br>\n' \
 				"$result" "$title"
 		done >"$tmp"
 		exec "$BROWSER" "$tmp"

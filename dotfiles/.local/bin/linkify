@@ -16,7 +16,7 @@ main ()
 	case "$1" in
 		-z)
 			shift
-			ztp=1
+			zet=1
 		;;
 	esac
 
@@ -41,7 +41,7 @@ main ()
 		esac
 
 		scheme='file'
-		[ -n "$ztp" ] && scheme='ztp'
+		[ -n "$zet" ] && scheme='zet'
 
 		printf '[%s](%s:%s)\n' "$id" "$scheme" "$file"
 	done
