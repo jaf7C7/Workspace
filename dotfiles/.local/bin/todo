@@ -21,8 +21,6 @@ usage () {
 	echo 'when:  today | tomorrow | later'
 	echo 'input:  <string> | <stdin>'
 	echo
-	echo 'without args: print today'\''s list to stdout'
-	echo
 	echo 'if <when> is omitted `today'\'' is assumed'
 	echo 'if <input> is omitted input is read from stdin'
 	exit
