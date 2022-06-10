@@ -75,7 +75,7 @@ keymap	r	NULL
 keymap	s	SAVE_LINK
 keymap	t	NULL
 keymap	u	PREV_HALF_PAGE
-keymap	v	EDIT
+keymap	v	GOTO /cgi-bin/w3medit.cgi
 keymap	w	NEXT_WORD
 keymap	x	NULL
 keymap	y	DOWN
