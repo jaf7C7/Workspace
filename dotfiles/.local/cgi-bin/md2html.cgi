@@ -2,8 +2,9 @@
 #
 # Render markdown files as html for local browsing
 
-file="${QUERY_STRING##*localhost}"
-file="${file#*zet:}"
+file="$QUERY_STRING"
+file="${file#*//zet}"
+file="${file#zet:}"
 
 case "$file" in
 	*.md) : ;;
