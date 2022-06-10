@@ -2,12 +2,15 @@
 #
 # Search bookmark and local documents.
 
-: "${BOOKMARKS:="$HOME/.bookmark.html"}"
+: "${BOOKMARKS:="$ZETTELKAST/222205121754.md"}"
 : "${DOCUMENTS:="$HOME/Documents"}"
 
 usage () {
 	echo 'usage: ref [<option>] <keyword>'
-	echo 'options: -l	print results as markdown links to stdout'
+	echo 'without option: display results for <keyword> in BROWSER'
+	echo 'options: -m  print results as markdown links to stdout'
+	echo '         -n  print file paths/urls to stdout'
+	echo '         -h  display this message'
 	exit
 }
 
@@ -17,40 +20,42 @@ search () {
 		glob="${glob+"$glob*"}$arg"
 	done
 
-	grep -i "$regex" "$BOOKMARKS" | while IFS= read -r link; do
-		link="${link#*<[Ll][Ii]>}<br>"
-
-		if [ -n "$nobrowser" ]; then
-			# Extract url from href
-			url="${link#*href=}" url="${url%%>[[:alpha:]]*}"
-
-			# Remove quotes from href if present
-			# (not always present)
-			url="${url#\"}" url="${url%\"}"
-
-			link="$url"
+	grep -i "$regex" "$BOOKMARKS" | while IFS= read -r result; do
+		if [ -n "$nobrowser" ] && [ -z "$markdown" ]; then
+			result="${result##*(}"
+			result="${result%)*}"
+		elif [ -n "$markdown" ]; then
+			result="${result#\* }"
 		fi
 
-		if [ -n "$markdown" ]; then
-			# Id is anchor text
-			id="${link%</*}" id="${id#*>}"
-
-			link="[$id]($url)"
-		fi
-		printf '%s\n' "$link"
+		printf '%s\n' "$result"
 	done
 
 	for result in "$DOCUMENTS"/*"$glob"*; do
 		[ -e "$result" ] || continue
+
 		if [ -n "$markdown" ]; then
 			result="$(linkify "$result")"
-		else
-			url="file://$result"
-			id="${result##*/}"
+		elif [ -z "$nobrowser" ]; then
+			result="* $(linkify "$result")"
 		fi
+
+		printf '%s\n' "$result"
+	done
+
+	if [ -n "$markdown" ]; then
+		zet -lS "$@"
+	else
+		zet -S "$@"
+	fi | while IFS= read -r result; do
+		case "$result" in
+			*222205121754*) continue
+		esac
+
 		if [ -z "$nobrowser" ]; then
-			result="<a href=\"$url\">$id</a><br>"
+			result="* $(linkify "$result")"
 		fi
+
 		printf '%s\n' "$result"
 	done
 }
@@ -59,12 +64,14 @@ main()
 {
 	tmp=/tmp/ref-$$.html
 
-	while getopts :mn opt; do
+	while getopts :hmn opt; do
 		case "$opt" in
 			m) markdown=1 nobrowser=1 ;;
 			n) nobrowser=1 ;;
+			h) usage ;;
 			*) ! usage ;;
 		esac
+
 		shift $((OPTIND - 1))
 	done
 
