@@ -49,7 +49,7 @@ new () {
 print () {
 	for arg do
 		if [ "$flag" = 'link' ]; then
-			linkify "$arg"
+			linkify -z "$arg"
 		else
 			printf '%s\n' "$arg"
 		fi
@@ -60,7 +60,7 @@ append_index () {
 	for arg do
 		[ -e "$arg" ] || error "$arg not found"
 		printf '* '
-		linkify "$arg"
+		linkify -z "$arg"
 	done >>"$ZETTELKAST/INDEX.md"
 }
 
@@ -79,7 +79,7 @@ search () {
 		esac
 		for result do
 			IFS= read -r title <"$result"
-			printf '<a href="file:%s">%s</a><br>\n' \
+			printf '<a href="ztp:%s">%s</a><br>\n' \
 				"$result" "$title"
 		done | exec $BROWSER
 	fi
