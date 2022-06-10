@@ -2,7 +2,7 @@
 #
 # Create markdown links to filenames.
 
-: ${ZETTELKAST:=~/Zettelkast}
+: "${ZETTELKAST:=$HOME/Zettelkast}"
 
 error () {
 	msg="$1"
@@ -13,14 +13,23 @@ error () {
 
 main ()
 {
+	case "$1" in
+		-z)
+			shift
+			ztp=1
+		;;
+	esac
+
 	if [ $# -eq 0 ]; then
 		while read -r file; do
 			set -- "$@" "$file"
 		done
 	fi
+
 	for file do
 		file="$(fullpath "$file")"
 		[ -e "$file" ] || error "$file not found"
+
 		case "$file" in
 			"$ZETTELKAST"/*.md)
 				id="${file##*/}" id="${id%.md}"
@@ -30,7 +39,11 @@ main ()
 			~/*) id="${file##*/}" ;;
 			*) id="$file" ;;
 		esac
-		printf '[%s](file:%s)\n' "$id" "$file"
+
+		scheme='file'
+		[ -n "$ztp" ] && scheme='ztp'
+
+		printf '[%s](%s:%s)\n' "$id" "$scheme" "$file"
 	done
 }
 
