@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Quickly preview a markdown file in BROWSER.
+
+main ()
+{
+	tmp=/tmp/md.html
+	pandoc "$@" -o "$tmp"
+	exec "$BROWSER" "$tmp"
+}
+
+main "$@"
+
