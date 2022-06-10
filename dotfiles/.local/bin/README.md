@@ -1,6 +1,6 @@
 # ~/.local/bin
 
-* [`ask`](https://raw.githubusercontent.com/jaf7c7/Workspace/master/dotfiles/ask) : search the web from the command line
+* [`ask`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/ask) : search the web from the command line
 * [`bat`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/bat) : check and monitor the battery status
 * [`chcase`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/chcase) : uppercase, lowercase or titlecase input
 * [`cmt`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/cmt) : toggle various styles of comments (for use with `vi`)
