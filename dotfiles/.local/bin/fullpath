@@ -1,6 +1,11 @@
 #!/bin/sh
 #
-# Get full path of a file with symbolic links resolved
+# `fullpath`: Get full path of a file with symbolic links resolved
+#
+# Depends: none
+# Environment: none
+#
+# See also `realpath(1)`
 
 error () {
 	printf '%s: %s\n' "${0##*/}" "$1"
@@ -18,14 +23,17 @@ main ()
 	for arg do
 		f="$arg"
 		[ -e "$f" ] || error "$f not found"
+
 		if [ -d "$f" ]; then
 			f="$(cd "$f" >/dev/null && pwd -P)"
 		else
 			case "$f" in
 				*/*) cd "${f%/*}" >/dev/null || return 1
 			esac
+
 			f="$(pwd -P)/${f##*/}"
 		fi
+
 		printf '%s\n' "$f"
 	done
 }

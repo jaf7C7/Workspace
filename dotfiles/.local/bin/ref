@@ -1,7 +1,11 @@
 #!/bin/sh
 #
-# Search bookmark and local documents.
+# `ref`: Search bookmark and local documents.
+#
+# Depends: `grep`, `zet`, `rm`, `pandoc`, `lynx`
+# Environment: DOCUMENTS, BOOKMARKS, ZETTELKAST, BROWSER
 
+: "${BROWSER:=lynx}"
 : "${BOOKMARKS:="$ZETTELKAST/222205121754.md"}"
 : "${DOCUMENTS:="$HOME/Documents"}"
 
@@ -79,8 +83,10 @@ main()
 		search "$@"
 	else
 		search "$@" | pandoc -f markdown+smart -t html -o "$tmp"
-		exec "$BROWSER" "$tmp"
+		"$BROWSER" "$tmp"
 	fi
+
+	rm "$tmp"
 }
 
 main "$@"

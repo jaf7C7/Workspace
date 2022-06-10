@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# Create markdown links to filenames.
+# `linkify`: Create markdown links to filenames.
+#
+# Depends: `fullpath`/`realpath`
+# Environment: ZETTELKAST
 
 : "${ZETTELKAST:=$HOME/Zettelkast}"
 
@@ -27,7 +30,12 @@ main ()
 	fi
 
 	for file do
-		file="$(fullpath "$file")"
+		if command -v fullpath >/dev/null 2>&1; then
+			file="$(fullpath "$file")"
+		else
+			file="$(realpath "$file")"
+		fi
+
 		[ -e "$file" ] || error "$file not found"
 
 		case "$file" in

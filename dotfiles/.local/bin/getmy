@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# Pull raw file from github dotfiles.
+# `getmy`: Pull raw file from github dotfiles.
+#
+# Depends: `curl`
+# Environment: none
 
 main()
 {

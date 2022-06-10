@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# Battery monitor.
+# `bat`: Battery monitor.
+#
+# Depends: `cat`, `tmux`/`screen`
+# Environment: SCREENDIR, BAT_DIR
 #
 # Return values:
 #   - 0 (No action required)
@@ -13,8 +16,7 @@
 : "${BAT_DIR:=/sys/class/power_supply/BAT1}"
 
 usage () {
-	printf '%s: usage: bat [-q|--quiet] [-m|--monitor]\n' "${0##*/}"
-	exit 1
+	echo 'usage: bat [-q|--quiet] [-m|--monitor]'
 } >&2
 
 check_status () {
@@ -35,10 +37,12 @@ only_session () {
 	# shellcheck disable=SC2046
 	set -- $(tmux ls -F '#{session_id}')
 	total_sessions=$#
+
 	set -- "$SCREENDIR"/*
 	case "$*" in
 		*[!*]) total_sessions=$((total_sessions + $#))
 	esac
+
 	[ "$total_sessions" -gt 1 ] && return 1
 	return 0
 }
@@ -47,11 +51,14 @@ only_session () {
 remove_dups () {
 	screen -qlsS battery_monitor
 	[ $? -le 11 ] && return
+
 	set -- "$SCREENDIR"/*battery_monitor
 	for session do
 		session="${session##*/}"
+
 		screen -qlsS "$session"
 		[ $? -eq 11 ] || continue
+
 		if [ -n "$survivor" ]; then
 			screen -S "$session" -X quit
 		else
@@ -111,11 +118,13 @@ main ()
 			else
 				remove_dups
 			fi
+
 			case "$return" in
 				3) notify "Check battery: $msg" ;;
 				2) notify "Battery full: $msg" ;;
 				1) notify "Low battery: $msg" ;;
 			esac
+
 			sleep 30
 		done
 

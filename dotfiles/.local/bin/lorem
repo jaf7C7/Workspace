@@ -1,6 +1,11 @@
 #!/bin/bash
 #
-# Dummy text generator for html etc.
+# `lorem`: Dummy text generator for html etc.
+#
+# Depends: none
+# Environment: none
+#
+# TODO: 'sentence' option just makes one (potentially) very long sentence
 
 usage () {
 	printf 'usage: lorem [[-t|--tag] <tagname>] <number>\n'
@@ -13,7 +18,6 @@ print_random () {
 	printf '%s\n' "${!arg}" 
 }
 
-# TODO: 'sentence' option just makes one (potentially) very long sentence
 main ()
 {
 	while getopts ht:s opt; do

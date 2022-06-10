@@ -1,10 +1,13 @@
 #!/bin/sh
 #
-# Zettelkast manager
+# `zet`: Zettelkast manager
+#
+# Depends: `rm`, `vi`, `lynx`, `linkify`
+# Environment: EDITOR, BROWSER, ZETTELKAST
 
 : "${EDITOR:=vi}"
+: "${BROWSER:=lynx}"
 : "${ZETTELKAST:="$HOME/Zettelkast"}"
-: "${BROWSER:=w3m}"
 
 usage () {
 	echo 'usage: zet [<option>] [<query>]'
@@ -37,6 +40,7 @@ index () {
 
 new () {
 	z="$ZETTELKAST/$(id).md"
+
 	if [ "$flag" = 'edit' ]; then
 		"$EDITOR" "$z" && append_index "$z"
 	else
@@ -67,34 +71,44 @@ append_index () {
 # shellcheck disable=SC2086,SC2046
 search () {
 	query="$*"
+
 	for arg do
 		regex="${regex+"$regex|"}$arg"
 	done
+
 	set -- $(grep -iEl "$regex" "$ZETTELKAST/"*[0-9].md)
+
 	[ $# -gt 0 ] || error "no results for \`$query'"
+
 	if [ "$flag" = 'browse' ]; then
 		tmp=/tmp/zet.html
+
 		for result do
 			IFS= read -r title <"$result"
 			printf '<a href="zet:%s">%s</a><br>\n' \
 				"$result" "$title"
 		done >"$tmp"
-		exec "$BROWSER" "$tmp"
+
+		"$BROWSER" "$tmp"
+		rm "$tmp"
 	fi
 	print "$@"
 }
 
 zetify () {
 	z="$ZETTELKAST/$(id).md"
+
 	while IFS= read -r line; do
 		printf '%s\n' "$line"
 	done >"$z"
+
 	append_index "$z"
 	print "$z"
 }
 
 push () {
 	cd "$ZETTELKAST" || error "Could not enter $ZETTELKAST"
+
 	while {
 		printf 'zet: push zettelkast to remote? [Y/n] '
 		read -r reply
@@ -108,6 +122,7 @@ push () {
 			;;
 		esac
 	done
+
 	git add . && git commit -m 'New zettels' && git push
 }
 
@@ -121,6 +136,7 @@ delete () {
 	for arg do
 		file="${arg#"${arg%%/[!/]*}"}"
 		file="${file%%)*}"
+
 		if [ -e "$file" ]; then
 			echo "$file deleted"
 			rm "$file"

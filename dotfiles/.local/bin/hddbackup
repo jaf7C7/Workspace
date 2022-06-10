@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# Backup to external hdd
+# `hddbackup`: Backup to external hdd
+#
+# Depends: `mv`, `cp`, `tr`
+# Environment: none
 
 set -e
 
@@ -15,25 +18,29 @@ main()
 			set -- ~/"$dir"
 		;;
 
-		"") set -- ~/Documents ~/Music ~/Personal ~/Pictures \
-			~/Projects ~/Wantlist ~/Workspace
+		"")
+			set -- ~/Documents ~/Music ~/Personal ~/Pictures \
+				~/Projects ~/Wantlist ~/Workspace
 		;;
 
 		*)
-			printf '%s: unknown directory: %s\n' "${0##*/}" "$1"
+			echo "hddbackup: unknown directory: $1"
 			exit 1
 		;;
 	esac
 
 	backup_dir=/media/joss/Tub.2.0
 
-	test -d "$backup_dir" || { echo "Could not find $backup_dir" && exit 1; }
+	if ! test -d "$backup_dir"; then
+		echo "Could not find $backup_dir"
+		exit 1
+	fi
 
 	for dir do
 		dir="${dir#/home/joss/}"
-		echo "Backing up: $dir -> ${backup_dir}/${dir}}"
-		mv "${backup_dir}/${dir}" "${backup_dir}/${dir}~"
-		cp -r ~/"${dir}" "${backup_dir}"
+		echo "Backing up: $dir -> $backup_dir/$dir}"
+		mv "$backup_dir/$dir" "$backup_dir/$dir~"
+		cp -r ~/"$dir" "$backup_dir"
 	done
 }
 

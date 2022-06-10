@@ -1,6 +1,9 @@
 #!/bin/bash
 #
-# Simple pomodoro timer
+# `pomo`: Simple pomodoro timer
+#
+# Depends: `tput`, `rm`, `mkdir`, `screen`/`tmux`
+# Environment: none
 
 usage () {
 	echo 'usage: pomo [ start <min>[m[<sec>s]] | stop | reset | resume ]'
@@ -62,8 +65,7 @@ alert () {
 		printf 'Restart timer? [Y/n] '
 		read -r reply
 		case "$reply" in
-			[Yy]|[Yy]es|"")
-			;;
+			[Yy]|[Yy]es|"") pomo start 25m ;;
 			[Nn]|[Nn]o) : ;;
 			*[!0-9]*)
 				unrec
@@ -82,6 +84,7 @@ is_running () {
 check () {
 	local T
 	[[ -e $time_log ]] && T="$(<"$time_log")"
+
 	if is_running; then
 		printf 'remaining: %02dm%02ds\n' $((T / 60)) $((T % 60))
 	elif [[ -n $T ]]; then
@@ -116,6 +119,7 @@ timer () {
 start () {
 	local seconds minutes time regex session
 	time="${1:-25m}"
+
 	if regex='^([0-9]+)m([0-9]+)s$'; [[ $time =~ $regex ]]; then
 		minutes="${BASH_REMATCH[1]}"
 		seconds="${BASH_REMATCH[2]}"
@@ -127,6 +131,7 @@ start () {
 	else
 		usage
 	fi
+
 	time=$((${minutes:=0} * 60 + ${seconds:=0}))
 
 	if [[ -n $TMUX ]]; then

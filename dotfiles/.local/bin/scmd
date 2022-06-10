@@ -1,6 +1,9 @@
 #!/bin/bash
 #
-# Wrapper for screen
+# `scmd`: Wrapper for screen
+#
+# Depends: `screen`
+# Environment: SCREENDIR
 
 : ${SCREENDIR:=/run/screen/S-$USER}
 
@@ -45,6 +48,7 @@ title () {
 
 split () {
 	local dir
+
 	while (( $# > 0 )); do
 		case "$1" in
 			-[hv]) dir="$1" ;;
@@ -57,6 +61,7 @@ split () {
 		esac
 		shift
 	done
+
 	cmd eval \
 		"split $dir" \
 		focus \
@@ -67,11 +72,13 @@ split () {
 target () {
 	[[ "$1" == ? ]] && set -- "${1}1"
 	count="${1#?}"
+
 	case "$1" in
 		+*) : ;;
 		-*) local dir='prev' ;;
 		*) usage ;;
 	esac
+
 	while (( "${i:=1}" <= "$count" )); do
 		screen -X focus ${dir}
 		((i++))
@@ -84,7 +91,6 @@ kill_all_sessions () {
 		session="${session##*/}"
 		screen -S "$session" -X quit
 	done
-	#screen -wipe 2>/dev/null
 }
 
 main ()

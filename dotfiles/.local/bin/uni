@@ -1,10 +1,17 @@
 #!/usr/bin/perl -CS
 #
+# `uni` : Print unicode chars from codepoint
+#
+# Depends: `perl`, `lynx`
+# Environment: BROWSER
+#
 # E.g.  'uni 03bc' → 'μ'
 #       'uni 2192' → '→'
 # https://stackoverflow.com/questions/15210532/use-of-use-utf8-gives-me-wide-character-in-print
-
+#
 # TODO: learn perl
+
+: "${BROWSER:=lynx}"
 
 use warnings;
 use strict;

@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# html boilerplate
+# `htmlboiler`: html boilerplate
+#
+# Depends: `cat`
+# Environment: none
 
 main()
 {

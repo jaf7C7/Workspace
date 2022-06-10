@@ -1,9 +1,11 @@
 #!/bin/sh
 #
-# Wrapper for lynx
+# `lynx`: Wrapper for lynx
+#
+# Depends: `lynx`
+# Environment: none
 
 USER_AGENT='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:77.0) Gecko/20190101 Firefox/77.0'
-export zet_proxy=X
 
 main ()
 {

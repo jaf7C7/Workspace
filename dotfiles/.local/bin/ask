@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# Quick web search.
+# `ask` : Quick web search.
+#
+# Depends: `lynx`
+# Environment: BROWSER
 #
 # Per-search results settings:
 #     https://duckduckgo.com/params
@@ -10,18 +13,18 @@
 # E.g. - Append '&kl=us-en' for US English region results.
 #      - Prepend '\' to accept first result.
 
+: "${BROWSER:=lynx}"
+
 usage () {
-	printf '%s: usage: ask [-s|--site <site-keyword>] <search-term>\n' "$0"
-	exit 1
+	echo 'usage: ask [-s|--site <site-keyword>] <search-term>'
 } >&2
 
 main ()
 {
-	[ $# -gt 0 ] || usage
+	[ $# -gt 0 ] || ! usage
 
 	case "$1" in
 		-h|--help) usage ;;
-
 		-s|--site)
 			case "$2" in
 				bashwiki) site='wiki.bash-hackers.org' ;;
@@ -33,10 +36,11 @@ main ()
 				vimwiki)  site='vim.fandom.com' ;;
 				whatwg)   site='html.spec.whatwg.org' ;;
 				wooledge) site='mywiki.wooledge.org' ;;
-				*)        usage ;;
+				*)        ! usage ;;
 			esac
 		;;
 	esac
+
 	[ -n "$site" ] && shift 2
 
 	IFS='+' query="$*${site++site:"$site"}"

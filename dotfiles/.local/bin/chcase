@@ -3,6 +3,7 @@
 # `chcase` : Upper- or lower-case a word/char.
 #
 # Depends: `dd`
+# Environment: none
 #
 # Use of `dd` from:
 #	https://raw.githubusercontent.com/dylanaraps/shfm/master/shfm
@@ -24,10 +25,12 @@ main ()
 				flag="$opt"
 				conv="${opt}case"
 			;;
+
 			t)
 				flag="$opt"
 				conv='ucase'
 			;;
+
 			h) usage ;;
 			*) ! usage ;;
 		esac
@@ -50,7 +53,9 @@ main ()
 			arg="$(printf '%s' "$arg" \
 				| dd ibs=1 count="${#arg}" conv="$conv")"
 		fi
+
 		printf '%s ' "$arg"
+
 	done 2>/dev/null
 
 	printf '\n'

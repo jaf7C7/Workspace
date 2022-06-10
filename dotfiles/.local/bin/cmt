@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# Filter which toggles comments.
+# `cmt`: Filter which toggles comments.
+#
+# Depends: none
+# Environment: none
 
 main ()
 {
@@ -13,6 +16,7 @@ main ()
 			line_open="${1:-#} "
 			line_close=" ${1:-#}"
 		;;
+
 		-b)
 			# E.g. 'cmt -b "$(uni 1f603)"'
 			# 😃 
@@ -24,11 +28,13 @@ main ()
 			line_open="${1:-#} "
 			block_close="${1:-#}"
 		;;
+
 		-c)
 			# /* ... */
 			line_open='/* '
 			line_close=' */'
 		;;
+
 		-C)
 			# /*
 			#  * ...
@@ -38,12 +44,14 @@ main ()
 			line_open=' * '
 			block_close=' */'
 		;;
+
 		-h)
 			# <!-- ... -->
 			save_indent=1
 			line_open='<!-- '
 			line_close=' -->'
 		;;
+
 		-f)
 			# Adds a trailing space.
 			# E.g. 'cmt -f \!'
@@ -54,6 +62,7 @@ main ()
 			shift
 			line_open="${1:-#} "
 		;;
+
 		*)
 			# E.g. 'cmt //'
 			# //...
@@ -101,14 +110,17 @@ main ()
 					continue
 				fi
 			;;
+
 			"$block_close")
 				trap - EXIT
 				continue
 			;;
+
 			"$line_open"*"$line_close")
 				line="${line#"$line_open"}"
 				line="${line%"$line_close"}"
 			;;
+
 			*)
 				line="${line_open}${line}${line_close}"
 			;;

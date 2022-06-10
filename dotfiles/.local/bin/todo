@@ -2,9 +2,9 @@
 #
 # `todo` : View/append to todo list.
 #
-# Depends: `ex`
-#
-# Environment:
+# Depends: `ex/vi`, `lynx`
+# Environment: ZETTELKAST, TODO_FILE, TODO_EDITOR, TODO_BROWSER, EDITOR,
+#              BROWSER
 
 : "${ZETTELKAST:="$HOME/Zettelkast"}"
 : "${TODO_FILE:="$ZETTELKAST/222205114007.md"}"
