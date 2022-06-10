@@ -81,7 +81,7 @@ keymap	x	NULL
 keymap	y	DOWN
 keymap	z	CENTER_V
 
-keymap	A	ADD_BOOKMARK
+keymap	A	EXEC_SHELL "url=%s; printf '(title) '; IFS= read -r title; printf '%s\\n' '/^<!--End/i' \"<li><a href=\\\"$url\\\">$title</a>\" '.' 'wq' | ex -s \"$BOOKMARKS\""
 keymap	B	BACK
 keymap	C	NULL
 keymap	D	NULL
