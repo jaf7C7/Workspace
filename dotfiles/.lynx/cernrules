@@ -639,6 +639,4 @@
 # typed at a 'g'oto prompt are recognized for URLs - rules processing kicks
 # in later.
 
-#Redirect https://github.com/* lynxcgi://localhost/home/joss/Workspace/dotfiles/.lynx/cgi-bin/test.cgi?https://github.com/*
-#Redirect https://stackoverflow.com/* lynxcgi://localhost/home/joss/Workspace/dotfiles/.lynx/cgi-bin/second.cgi?https://stackoverflow.com/*
-Redirect file:*.md lynxcgi://localhost/home/joss/Workspace/dotfiles/.local/cgi-bin/md2html.cgi?*.md
+Redirect ztp: lynxcgi:/home/joss/.local/cgi-bin/md2html.cgi?*
