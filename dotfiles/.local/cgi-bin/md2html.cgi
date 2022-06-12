@@ -3,7 +3,7 @@
 # `md2html.cgi`: Render markdown files as html for local browsing
 #
 # Depends: `pandoc`
-# Environment: QUERY_STRING
+# Environment: QUERY_STRING, ZETTELKAST
 
 case "$QUERY_STRING" in
 	*"$ZETTELKAST"*) file="$ZETTELKAST/${QUERY_STRING##*/}" ;;
