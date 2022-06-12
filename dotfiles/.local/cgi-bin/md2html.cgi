@@ -5,11 +5,10 @@
 # Depends: `pandoc`
 # Environment: QUERY_STRING
 
-file="$QUERY_STRING"
-
-# For use with custom 'zet' scheme
-file="${file#*//zet}" # lynx
-file="${file#zet:}" # w3m
+case "$QUERY_STRING" in
+	*"$ZETTELKAST"*) file="$ZETTELKAST/${QUERY_STRING##*/}" ;;
+	*) file="$QUERY_STRING" ;;
+esac
 
 echo 'Content-type: text/html'
 echo
