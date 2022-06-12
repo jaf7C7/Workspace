@@ -4,6 +4,9 @@
 #
 # Depends: `tput`, `rm`, `mkdir`, `screen`/`tmux`
 # Environment: none
+#
+# TODO: Abstract alert function into script which prints an arbitrary message
+#       to the screen.
 
 usage () {
 	echo 'usage: pomo [ start <min>[m[<sec>s]] | stop | reset | resume ]'
