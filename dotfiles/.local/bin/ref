@@ -68,6 +68,8 @@ main()
 {
 	tmp=/tmp/ref-$$.html
 
+	[ $# -eq 0 ] && ! usage
+
 	while getopts :hmn opt; do
 		case "$opt" in
 			m) markdown=1 nobrowser=1 ;;
