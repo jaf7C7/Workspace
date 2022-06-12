@@ -4,8 +4,6 @@
 #
 # Depends: none
 # Environment: none
-#
-# TODO: 'sentence' option just makes one (potentially) very long sentence
 
 usage () {
 	printf 'usage: lorem [[-t|--tag] <tagname>] <number>\n'
@@ -78,11 +76,27 @@ main ()
 	[[ -n "$tag" ]] && printf '<%s>' "$tag"
 
 	i=1
+	j=0
 	while (( i <= count )); do
 		word="$(print_random "${words[@]}")"
 		(( i == 1 )) && word="${word@u}"
+
 		printf '%s' "$word"
-		[[ -n "$sentence" ]] && (( i == RANDOM % count )) && printf ','
+
+		# Add semi-random commas and full-stops, but make sure
+		# sentences are at least 3 words long.
+		if [[ -n "$sentence" ]]; then
+			if (( i == RANDOM % count )) && (( j > 3 )) \
+			   && (( i < count - 2 )); then
+				j=0
+				printf '.'
+			elif (( i == RANDOM % count )); then
+				printf ','
+			fi
+
+			((j++))
+		fi
+
 		(( i < count )) && printf ' '
 		((i++))
 	done
