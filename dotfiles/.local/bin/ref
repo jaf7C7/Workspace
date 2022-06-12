@@ -89,6 +89,8 @@ main()
 	fi
 
 	[ -e "$tmp" ] && rm "$tmp"
+
+	return 0
 }
 
 main "$@"
