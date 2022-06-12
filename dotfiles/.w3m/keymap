@@ -54,7 +54,7 @@ keymap	DOWN	NULL
 keymap	RIGHT	NULL
 keymap	LEFT	NULL
 
-keymap	a	VIEW_BOOKMARK
+keymap	a	GOTO /cgi-bin/md2html.cgi?/home/joss/Zettelkast/222205121754.md
 keymap	b	PREV_PAGE
 keymap	c	NULL
 keymap	d	NEXT_HALF_PAGE
@@ -81,7 +81,7 @@ keymap	x	NULL
 keymap	y	DOWN
 keymap	z	CENTER_V
 
-keymap	A	EXEC_SHELL "url=%s; printf '(title) '; IFS= read -r title; printf '%s\\n' '/^<!--End/i' \"<li><a href=\\\"$url\\\">$title</a>\" '.' 'wq' | ex -s \"$BOOKMARKS\""
+keymap	A	EXTERN "url=%s; printf '(title) '; IFS= read -r title; printf '* [%s](%s)\n' \"$title\" \"$url\" >> \"$BOOKMARKS\""
 keymap	B	BACK
 keymap	C	NULL
 keymap	D	NULL
@@ -89,7 +89,7 @@ keymap	E	LOAD
 keymap	F	NULL
 keymap	G	END
 keymap	H	CURSOR_TOP
-keymap	I	GOTO /cgi-bin/w3mopen.cgi?/home/joss/Zettelkast/INDEX.md
+keymap	I	GOTO /cgi-bin/md2html.cgi?/home/joss/Zettelkast/INDEX.md
 keymap	J	NULL
 keymap	K	NULL
 keymap	L	CURSOR_BOTTOM
