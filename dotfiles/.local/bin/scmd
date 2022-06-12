@@ -5,12 +5,12 @@
 # Depends: `screen`
 # Environment: SCREENDIR
 
-: ${SCREENDIR:=/run/screen/S-$USER}
+: "${SCREENDIR:=/run/screen/S-$USER}"
 
 usage () {
-	printf "%s: you're doing it wrong!\n" "${0##*/}" >&2
+	echo "You're doing it wrong!"
 	exit 1
-}
+} >&2
 
 cmd () {
 	screen ${session+-S "$session"} ${window+-p "$window"} -X "$@"

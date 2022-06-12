@@ -47,17 +47,17 @@ search () {
 		printf '%s\n' "$result"
 	done
 
-	if [ -n "$markdown" ]; then
-		zet -lS "$@"
-	else
+	if [ -n "$nobrowser" ] && [ -z "$markdown" ]; then
 		zet -S "$@"
+	else
+		zet -lS "$@"
 	fi | while IFS= read -r result; do
 		case "$result" in
 			*222205121754*) continue
 		esac
 
 		if [ -z "$nobrowser" ]; then
-			result="* $(linkify "$result")"
+			result="* $result"
 		fi
 
 		printf '%s\n' "$result"
@@ -86,7 +86,7 @@ main()
 		"$BROWSER" "$tmp"
 	fi
 
-	rm "$tmp"
+	[ -e "$tmp" ] && rm "$tmp"
 }
 
 main "$@"

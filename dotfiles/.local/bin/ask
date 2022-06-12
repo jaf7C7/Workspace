@@ -43,6 +43,7 @@ main ()
 
 	[ -n "$site" ] && shift 2
 
+	# Lazy url-encoding of the query string.
 	IFS='+' query="$*${site++site:"$site"}"
 	exec "$BROWSER" "https://lite.duckduckgo.com/lite?q=${query}"
 }

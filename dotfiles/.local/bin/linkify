@@ -8,9 +8,7 @@
 : "${ZETTELKAST:=$HOME/Zettelkast}"
 
 error () {
-	msg="$1"
-	printf '%s: %s\n' "${0##*/}" "$msg"
-	unset msg
+	echo "linkify: $*"
 	exit 1
 } >&2
 

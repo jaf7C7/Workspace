@@ -7,7 +7,12 @@
 
 set -e
 
-main()
+error () {
+	echo "hddbackup: $*"
+	exit 1
+} >&2
+
+main ()
 {
 	case "$1" in
 		[Dd]ocuments|[Mm]usic|[Pp]ersonal|[Pp]ictures|[Ww]antlist|[Ww]orkspace)
@@ -24,16 +29,14 @@ main()
 		;;
 
 		*)
-			echo "hddbackup: unknown directory: $1"
-			exit 1
+			error "hddbackup: unknown directory: $1"
 		;;
 	esac
 
 	backup_dir=/media/joss/Tub.2.0
 
 	if ! test -d "$backup_dir"; then
-		echo "Could not find $backup_dir"
-		exit 1
+		error "Could not find $backup_dir"
 	fi
 
 	for dir do

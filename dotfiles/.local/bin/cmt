@@ -71,7 +71,7 @@ main ()
 	esac
 
 	while IFS= read -r line; do
-		if [ "${i:=1}" -eq 1 ]; then
+		if [ ${i:=1} -eq 1 ]; then
 			if [ -z "$line" ]; then
 				printf '\n'
 				continue

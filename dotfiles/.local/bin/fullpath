@@ -1,11 +1,10 @@
 #!/bin/sh
 #
-# `fullpath`: Get full path of a file with symbolic links resolved
+# `fullpath`: Get full path of a file with symbolic links resolved. Like
+#             `realpath(1)` but using only POSIX `sh`.
 #
 # Depends: none
 # Environment: none
-#
-# See also `realpath(1)`
 
 error () {
 	printf '%s: %s\n' "${0##*/}" "$1"
