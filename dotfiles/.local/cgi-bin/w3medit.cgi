@@ -1,7 +1,10 @@
 #!/bin/sh
 #
-# Edit the current document, or edit the source file if it's a cgi-generated
-# page.
+# `w3medit.cgi`: Edit the current document, or edit the source file if it's a
+#                cgi-generated page.
+#
+# Depends: `w3m`
+# Environment: W3M_URL
 
 # For use with custom 'zet' URI
 file="${W3M_URL#zet:}"

@@ -1,4 +1,9 @@
 #!/bin/sh
+#
+# `test.cgi`: Test cgi script for checking variables.
+#
+# Depends: none
+# Environment: none
 
 echo 'Content-type: text/html'
 echo ''

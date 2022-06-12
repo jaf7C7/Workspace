@@ -1,6 +1,9 @@
 #!/bin/sh
 #
-# Render markdown files as html for local browsing
+# `md2html.cgi`: Render markdown files as html for local browsing
+#
+# Depends: `pandoc`
+# Environment: QUERY_STRING
 
 file="$QUERY_STRING"
 
