@@ -48,7 +48,7 @@ PARINIT='rTbgqR B=.,?_A_a Q=_s>|'
 
 # Pager
 PAGER=less
-LESS='-Fgj3$Rx4$'
+LESS='-Fgj3$R'
 if [ -x /usr/bin/lesspipe ]; then
 	LESSOPEN='| /usr/bin/lesspipe %s'
 	LESSCLOSE='/usr/bin/lesspipe %s %s'
