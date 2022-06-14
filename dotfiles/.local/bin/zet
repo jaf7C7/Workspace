@@ -91,6 +91,7 @@ search () {
 
 		"$BROWSER" "$tmp"
 		rm "$tmp"
+		return
 	fi
 	print "$@"
 }
