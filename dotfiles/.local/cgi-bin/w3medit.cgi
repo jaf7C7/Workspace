@@ -6,9 +6,11 @@
 # Depends: `w3m`
 # Environment: W3M_URL
 
-# For use with custom 'zet' URI
-file="${W3M_URL#zet:}"
-file="${file#*cgi\?}"
+case "$W3M_URL" in
+	zet:*) file="$ZETTELKAST/${W3M_URL#zet:}" ;;
+	file:*) file="${W3M_URL#file://}" ;;
+esac
+
 
 echo 'Content-Type: text/html'
 
