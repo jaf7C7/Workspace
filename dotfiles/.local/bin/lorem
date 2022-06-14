@@ -75,11 +75,12 @@ main ()
 
 	[[ -n "$tag" ]] && printf '<%s>' "$tag"
 
-	i=1
-	j=0
+	i=1 # Total words printed.
+	j=0 # Words in current sentence.
 	while (( i <= count )); do
 		word="$(print_random "${words[@]}")"
-		(( i == 1 )) && word="${word@u}"
+		(( j == 0 )) && word="${word@u}"
+		((j++))
 
 		printf '%s' "$word"
 
@@ -88,13 +89,11 @@ main ()
 		if [[ -n "$sentence" ]]; then
 			if (( i == RANDOM % count )) && (( j > 3 )) \
 			   && (( i < count - 2 )); then
-				j=0
 				printf '.'
+				j=0
 			elif (( i == RANDOM % count )); then
 				printf ','
 			fi
-
-			((j++))
 		fi
 
 		(( i < count )) && printf ' '
