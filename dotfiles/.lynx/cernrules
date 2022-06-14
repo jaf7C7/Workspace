@@ -639,8 +639,8 @@
 # typed at a 'g'oto prompt are recognized for URLs - rules processing kicks
 # in later.
 
-# Apparently custom URLs don't always work depending on what you call them:
-# e.g. "foo:" works fine but "zet:" or "ztp:" doesn't and get interpreted
-# automatically as "ftp:". Strange and annoying like many things with lynx.
-# Anyway this workaround does the job for now:
-Redirect ftp:*.md lynxcgi://localhost/home/joss/Workspace/dotfiles/.local/cgi-bin/md2html.cgi?*.md
+# Only works if URL doesn't contain any forward slashes, otherwise assumes
+# 'ftp://zet/'.
+Redirect zet:* lynxcgi://localhost/home/joss/Workspace/dotfiles/.local/cgi-bin/md2html.cgi?/home/joss/Zettelkast/*
+
+
