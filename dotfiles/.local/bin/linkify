@@ -41,6 +41,10 @@ main ()
 				id="${file##*/}" id="${id%.md}"
 				IFS= read -r title <"$file"
 				id="$id(${title#\# })"
+
+				# 'zet:' urls must not contain '/', only the
+				# zet ID.
+				file="${file##*/}"
 			;;
 			~/*) id="${file##*/}" ;;
 			*) id="$file" ;;
