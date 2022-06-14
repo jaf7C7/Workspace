@@ -53,19 +53,27 @@ append () {
 		done
 	fi
 
-	printf '* %s\n' "$1"
-	shift
+	{
+		case "$1" in
+			'* '*) printf '%s\n' "$1" ;;
+			*) printf '* %s\n' "$1" ;;
+		esac
 
-	for arg do
-		if [ -n "$multi" ]; then
-			arg="* $arg"
-		else
-			arg="  $arg"
-		fi
+		shift
 
-		printf '%s\n' "$arg"
+		for arg do
+			if [ -n "$multi" ]; then
+				case "$arg" in
+					'* '*) : ;;
+					*) arg="* $arg" ;;
+				esac
+			else
+				arg="  $arg"
+			fi
 
-	done >>"$file"
+			printf '%s\n' "$arg"
+		done
+	} >>"$file"
 }
 
 view () {
@@ -102,7 +110,6 @@ view () {
 		else
 			printf '%s\n' "$line"
 		fi
-
 	done <"$file"
 }
 
@@ -117,6 +124,7 @@ main () {
 			*) error "bad option: $opt" ;;
 		esac
 	done
+
 	shift $((OPTIND - 1))
 
 	while [ $# -gt 0 ]; do
@@ -125,14 +133,17 @@ main () {
 				when="$1"
 				shift
 			;;
+			"") : ;;
 			*) break ;;
 		esac
 	done
 
+	[ -z "$when" ] && when='today'
+
 	if [ -n "$append" ]; then
-		append "${when:-later}" "$@"
+		append "$when" "$@"
 	else
-		view "${when:-today}"
+		view "$when"
 	fi
 
 }
