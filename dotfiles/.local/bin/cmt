@@ -45,6 +45,12 @@ main ()
 			block_close=' */'
 		;;
 
+		-d)
+			# ... # debug
+			shift
+			line_close=" ${1:-#} debug"
+		;;
+
 		-h)
 			# <!-- ... -->
 			save_indent=1
