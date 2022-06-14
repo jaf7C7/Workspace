@@ -85,6 +85,7 @@ search () {
 
 		for result do
 			IFS= read -r title <"$result"
+			result="${result#"$ZETTELKAST/"}"
 			printf '<a href="zet:%s">%s</a><br>\n' \
 				"$result" "$title"
 		done >"$tmp"
