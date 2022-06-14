@@ -7,6 +7,9 @@
 
 USER_AGENT='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:77.0) Gecko/20190101 Firefox/77.0'
 
+# Necessary to allow custom 'zet' URLs, see 'cernrules' commentary.
+export zet_proxy=X
+
 main ()
 {
 	# The following lynx.cfg options apparently have no effect, so use
