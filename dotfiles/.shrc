@@ -44,7 +44,6 @@ CDPATH=.:~:~/Workspace:~/.local:~/Projects
 # Editor
 EDITOR=vi
 EXINIT='set ai ts=8 sw=8 nows noic noflash'
-PARINIT='rTbgqR B=.,?_A_a Q=_s>|'
 
 # Pager
 PAGER=less
@@ -245,15 +244,17 @@ bw () {
 }
 
 cd () {
-	command cd "$@" >/dev/null
-	[ -n "$PS1_DIR" ] || pwd -P
+	if command cd "$@" >/dev/null; then
+		[ -n "$PS1_DIR" ] || pwd -P
+	fi
 }
 
-hotspot () {
+wifi () {
 	case "$1" in
 		oneplus) nmcli connection up 'OnePlus 6T' ;;
 		iphone) nmcli connection up 'Faye’s iPhone' ;;
-		*) ! echo 'usage: hotspot [ oneplus | iphone ]' >&2
+		zyxel) nmcli connection up 'Zyxel_23A9' ;;
+		*) ! echo 'usage: wifi [ oneplus | iphone | zyxel ]' >&2 ;;
 	esac
 }
 
