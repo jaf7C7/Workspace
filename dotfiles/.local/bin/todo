@@ -2,26 +2,27 @@
 #
 # `todo` : View/append to todo list.
 #
-# Depends: `ex/vi`, `lynx`
-# Environment: ZETTELKAST, TODO_FILE, TODO_EDITOR, TODO_BROWSER, EDITOR,
+# Depends: `vi`, `lynx`
+# Environment: ZETTELKAST, TODO_INDEX, TODO_TODAY, TODO_TOMORROW, EDITOR,
 #              BROWSER
 
 : "${ZETTELKAST:="$HOME/Zettelkast"}"
-: "${TODO_FILE:="$ZETTELKAST/222205114007.md"}"
-: "${TODO_EDITOR:="${EDITOR:=vi}"}"
-: "${TODO_BROWSER:="${BROWSER:=w3m}"}"
+: "${TODO_INDEX:="$ZETTELKAST/222205114007.md"}"
+: "${TODO_TODAY:="$ZETTELKAST/221406140136.md"}"
+: "${TODO_TOMORROW:="$ZETTELKAST/221406140141.md"}"
+: "${EDITOR:=vi}"
+: "${BROWSER:=lynx}"
 
 usage () {
 	echo 'usage: todo [<option>] [<when>] [<input>]'
 	echo 'options:  -h  display this message'
-	echo '          -b  view TODO_FILE in BROWSER'
-	echo '          -e  edit TODO_FILE in EDITOR'
 	echo '          -a  append item <input> to list <when>'
 	echo '          -A  append each item <input> to list <when>'
+	echo '          -b  view list <when> in BROWSER'
+	echo '          -e  edit list <when> in EDITOR'
 	echo 'when:  today | tomorrow | later'
 	echo 'input:  <string> | <stdin>'
 	echo
-	echo 'if <when> is omitted `today'\'' is assumed'
 	echo 'if <input> is omitted input is read from stdin'
 	exit
 } >&2
@@ -32,8 +33,19 @@ error () {
 } >&2
 
 append () {
-	when="$1"
-	shift
+	case "$1" in
+		today)
+			shift
+			file="$TODO_TODAY"
+		;;
+
+		tomorrow)
+			shift
+			file="$TODO_TOMORROW"
+		;;
+
+		*) file="$TODO_INDEX" ;;
+	esac
 
 	if [ $# -eq 0 ]; then
 		while IFS= read -r line; do
@@ -41,51 +53,66 @@ append () {
 		done
 	fi
 
-	{
-		printf '%s\n' 'set ic' "/^##.*$when/;/^--/-i"
-		printf '* '
-		while [ $# -gt 0 ]; do
-			printf '%s\n' "${1#\* }"
-			shift
-			[ $# -gt 0 ] || break
-			if [ -n "$multi" ]; then
-				printf '* '
-			else
-				printf '  '
-			fi
-		done
-		printf '%s\n' '.' 'wq'
-	} | ex -s "$TODO_FILE"
+	printf '* %s\n' "$1"
+	shift
+
+	for arg do
+		if [ -n "$multi" ]; then
+			arg="* $arg"
+		else
+			arg="  $arg"
+		fi
+
+		printf '%s\n' "$arg"
+
+	done >>"$file"
 }
 
 view () {
-	when="$1"
-	shift
+	case "$1" in
+		today)
+			shift
+			file="$TODO_TODAY"
+		;;
 
-	if [ -n "$edit" ]; then
-		exec "$TODO_EDITOR" "$TODO_FILE"
-	elif [ -n "$browse" ]; then
-		exec "$TODO_BROWSER" "$TODO_FILE"
-	else
-		printf '%s\n' 'set ic' "/^##.*$when/s/^#//" '.,/^--/-v/^$/p' \
-			'q!' | ex -s "$TODO_FILE"
-	fi
-}
+		tomorrow)
+			shift
+			file="$TODO_TOMORROW"
+		;;
 
-update () {
-	# Append everything from `Tomorrow` to `Today`.
-	printf '%s\n' '/Tomorrow/+;/^--/-v/^$/m?^--?-2' 'wq' \
-		| ex -s "$TODO_FILE"
-	exit
+		*) file="$TODO_INDEX" ;;
+	esac
+
+	[ -n "$browse" ] && exec "$BROWSER" "zet:${file#"$ZETTELKAST/"}"
+	[ -n "$edit" ] && exec "$EDITOR" "$file"
+	
+	print=0
+	while IFS= read -r line; do
+		[ -z "$line" ] && continue
+
+		if [ "$file" = "$TODO_INDEX" ]; then
+			case "$line" in
+				'## Uncategorised')
+					print=1
+					line="${line#\#}"
+				;;
+			esac
+
+			[ "$print" -eq 1 ] && printf '%s\n' "$line"
+		else
+			printf '%s\n' "$line"
+		fi
+
+	done <"$file"
 }
 
 main () {
-	while getopts :aAehnb opt; do
+	while getopts :aAbehn opt; do
 		case "$opt" in
 			a) append=1 ;;
 			A) append=1 multi=1 ;;
-			e) edit=1 ;;
 			b) browse=1 ;;
+			e) edit=1 ;;
 			h) usage ;;
 			*) error "bad option: $opt" ;;
 		esac
@@ -98,17 +125,14 @@ main () {
 				when="$1"
 				shift
 			;;
-			update) update ;;
 			*) break ;;
 		esac
 	done
 
-	[ -z "$when" ] && when='today'
-
 	if [ -n "$append" ]; then
-		append "$when" "$@"
+		append "${when:-later}" "$@"
 	else
-		view "$when"
+		view "${when:-today}"
 	fi
 
 }
