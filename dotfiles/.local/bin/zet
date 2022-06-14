@@ -136,12 +136,11 @@ delete () {
 	fi
 
 	for arg do
-		file="${arg#"${arg%%/[!/]*}"}"
-		file="${file%%)*}"
+		file="${arg##*(zet:}"
+		file="$ZETTELKAST/${file%%)*}"
 
 		if [ -e "$file" ]; then
-			echo "$file deleted"
-			rm "$file"
+			rm "$file" && echo "$file deleted"
 		else
 			error "$file not found"
 		fi
