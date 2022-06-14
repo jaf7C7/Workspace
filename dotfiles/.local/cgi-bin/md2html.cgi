@@ -6,8 +6,8 @@
 # Environment: QUERY_STRING, ZETTELKAST
 
 case "$QUERY_STRING" in
-	*"$ZETTELKAST"*) file="$ZETTELKAST/${QUERY_STRING##*/}" ;;
-	*) file="$QUERY_STRING" ;;
+	zet:*) file="$ZETTELKAST/${QUERY_STRING#zet:}" ;;
+	*) file="${QUERY_STRING#*://}" ;;
 esac
 
 echo 'Content-type: text/html'
