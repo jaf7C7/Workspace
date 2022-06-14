@@ -34,7 +34,7 @@ id () {
 }
 
 index () {
-	target="zet:$ZETTELKAST/INDEX.md"
+	target='zet:INDEX.md'
 	exec "$BROWSER" "$target"
 }
 
