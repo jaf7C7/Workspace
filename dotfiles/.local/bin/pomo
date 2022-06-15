@@ -70,10 +70,6 @@ alert () {
 		case "$reply" in
 			[Yy]|[Yy]es|"") pomo start 25m ;;
 			[Nn]|[Nn]o) : ;;
-			*[!0-9]*)
-				unrec
-				continue
-			;;
 			*) pomo start "$reply" ;;
 		esac
 		break
@@ -89,11 +85,11 @@ check () {
 	[[ -e $time_log ]] && T="$(<"$time_log")"
 
 	if is_running; then
-		printf 'remaining: %02dm%02ds\n' $((T / 60)) $((T % 60))
+		printf 'pomo: remaining: %02dm%02ds\n' $((T / 60)) $((T % 60))
 	elif [[ -n $T ]]; then
-		printf 'stopped: %02dm%02ds\n' $((T / 60)) $((T % 60))
+		printf 'pomo: stopped: %02dm%02ds\n' $((T / 60)) $((T % 60))
 	else
-		! printf 'no timer info available\n' >&2
+		! printf 'pomo: no timer info available\n' >&2
 	fi
 }
 
