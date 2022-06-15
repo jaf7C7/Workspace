@@ -21,7 +21,7 @@ main ()
 		cmd='s/'"$regex"'/\1/p'
 		sed -n "$cmd" "$@"
 	else
-		tmp=/tmp/grepurl
+		tmp=/tmp/grepurl-$$.html
 		cmd='s/'"$regex"'/<a href="\1">\1<\/a><br>/p'
 		sed -n "$cmd" "$@" >"$tmp"
 		"$BROWSER" "$tmp"
