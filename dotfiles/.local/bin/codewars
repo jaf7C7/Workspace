@@ -1,9 +1,9 @@
 #!/bin/node
 /*
- * `cw`: Utility to expedite scraping, formatting and uploading `codewars`
- *       challenges.
+ * `codewars`: Utility to expedite scraping, formatting and uploading
+ *             `codewars` challenges.
  * 
- * Depends: `curl`, `jq`
+ * Depends: -
  * Environment: -
  */
 
@@ -20,9 +20,9 @@
 
 const usage = () => {
 	let usage = `\
-		usage: cw -s|--search[=<search_spec>] <query>
-		       cw -p|--pull <challenge_spec>
-		       cw -h|--help
+		usage: codewars -s|--search[[=]<search_spec>] <query>
+		       codewars -p|--pull <challenge_spec>
+		       codewars -h|--help
 		       <search_spec>: name, lang, rank, id
 		       <challenge_spec>: <ID>, <URL>
 	`;
@@ -31,7 +31,7 @@ const usage = () => {
 };
 
 const error = (msg = 'error') => {
-	process.stderr.write(`cw: ${msg}\n`);
+	process.stderr.write(`codewars: ${msg}\n`);
 	process.exit(1);
 };
 
