@@ -4,6 +4,7 @@
 * [`bat`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/bat) : check and monitor the battery status
 * [`chcase`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/chcase) : uppercase, lowercase or titlecase input
 * [`cmt`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/cmt) : toggle various styles of comments (for use with `vi`)
+* [`codewars`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/codewars) : scrape challenges from [codewars](https://codewars.com) and commit them to the [codewars repo](https://github.com/jaf7C7/Codewars)
 * [`fullpath`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/fullpath) : get the full canonical path to a file
 * [`getmy`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/getmy) : curl a given file from this repository
 * [`grepurl`](https://github.com/jaf7C7/Workspace/tree/master/dotfiles/.local/bin/grepurl) : extract urls from files or stdin
