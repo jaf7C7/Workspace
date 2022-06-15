@@ -17,6 +17,7 @@ echo 'Content-Type: text/html'
 if [ -e "$file" ]; then
 	echo "W3m-control: LOAD $file"
 	echo 'W3m-control: DELETE_PREVBUF'
+	echo "W3m-control: GOTO_LINE $W3M_CURRENT_LINE"
 	echo 'W3m-control: EDIT'
 	echo 'W3m-control: BACK'
 else
