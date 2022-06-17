@@ -30,24 +30,24 @@ map @$ :w|!tmux splitw bash -c 'node -i -e "$(< %)"'
 " Appearance
 hi ColorColumn  cterm=NONE      ctermfg=7    ctermbg=0
 hi Directory    cterm=NONE      ctermfg=NONE ctermbg=NONE
-hi EndOfBuffer  cterm=NONE      ctermfg=12   ctermbg=NONE
-hi ErrorMsg     cterm=NONE      ctermfg=NONE ctermbg=1
-hi LineNr       cterm=NONE      ctermfg=8    ctermbg=0
+hi EndOfBuffer  cterm=NONE      ctermfg=NONE ctermbg=NONE
+hi ErrorMsg     cterm=reverse   ctermfg=NONE ctermbg=NONE
+hi LineNr       cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi ModeMsg      cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi MoreMsg      cterm=reverse   ctermfg=NONE ctermbg=NONE
-hi NonText      cterm=NONE      ctermfg=12   ctermbg=NONE
+hi NonText      cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi Pmenu        cterm=NONE      ctermfg=7    ctermbg=NONE
 hi PmenuSel     cterm=reverse   ctermfg=NONE ctermbg=NONE
 hi PmenuSbar    cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi PmenuThumb   cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi Question     cterm=NONE      ctermfg=NONE ctermbg=NONE
-hi SpecialKey   cterm=NONE      ctermfg=12   ctermbg=NONE
+hi SpecialKey   cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi StatusLine   cterm=reverse   ctermfg=NONE ctermbg=NONE
-hi StatusLineNC cterm=NONE      ctermfg=8    ctermbg=15
+hi StatusLineNC cterm=standout  ctermfg=NONE ctermbg=NONE
 hi Title        cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi VertSplit    cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi Visual       cterm=reverse   ctermfg=NONE ctermbg=NONE
-hi WarningMsg   cterm=NONE      ctermfg=3    ctermbg=NONE
+hi WarningMsg   cterm=NONE      ctermfg=NONE ctermbg=NONE
 
 "
 " Vim version has 'eval' (vimrc)
@@ -108,6 +108,7 @@ hi Ignore         cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi Include        cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi Keyword        cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi Label          cterm=NONE      ctermfg=NONE ctermbg=NONE
+hi LineNr         cterm=NONE      ctermfg=8    ctermbg=NONE
 hi Macro          cterm=NONE      ctermfg=NONE ctermbg=NONE
 hi MatchParen     cterm=underline ctermfg=NONE ctermbg=NONE
 hi Normal         cterm=NONE      ctermfg=NONE ctermbg=NONE
