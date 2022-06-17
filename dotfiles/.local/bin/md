@@ -10,7 +10,7 @@
 main ()
 {
 	tmp=/tmp/md.html
-	pandoc "$@" -o "$tmp"
+	pandoc -f markdown+smart -t html5 "$@" -o "$tmp"
 	"$BROWSER" "$tmp"
 	rm "$tmp"
 }
