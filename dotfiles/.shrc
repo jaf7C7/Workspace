@@ -31,9 +31,9 @@ DOTFILES="$STOW_DIR/dotfiles"
 BIN=~/.local/bin
 CGI_BIN=~/.local/cgi-bin
 ZETTELKAST=~/Zettelkast
-TODO_FILE="$ZETTELKAST/222205114007.md"
 BOOKMARKS="$ZETTELKAST/222205121754.md"
 DOCUMENTS=~/Documents
+PROJECTS=~/Projects
 BAT_DIR=/sys/class/power_supply/BAT1
 case "$PATH" in
 	"$BIN:"*) : ;;
@@ -88,11 +88,6 @@ if command -v manpath >/dev/null 2>&1; then
 		*) MANPATH="$MANPATH:$NPM_MANPATH" ;;
 	esac
 fi
-
-# Fix qt applications (okular) not following system theme
-# https://askubuntu.com/a/1044432
-QT_QPA_PLATFORMTHEME=gtk2
-QT_QPA_PLATFORM=wayland
 
 set +a
 
