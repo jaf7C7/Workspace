@@ -102,7 +102,7 @@ keymap	R	NULL
 keymap	S	SAVE
 keymap	T	NULL
 keymap	U	UNDO
-keymap	V	NULL
+keymap	V	EDIT_SCREEN
 keymap	W	PREV_WORD
 keymap	X	NULL
 keymap	Y	NULL
