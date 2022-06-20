@@ -225,17 +225,19 @@ alias z='fg %-'
 #
 
 bw () {
-	trap 'xsel --clipboard --delete; return 1' INT STOP
+	trap 'xsel --clipboard --delete; return 1' INT STOP EXIT
 	case "$*" in
 		unlock) export BW_SESSION="$(command bw unlock --raw)" ;;
 		'get password '*)
-			command bw "$@" | xsel --clipboard --input
+			xsel --clipboard --input <<-EOF
+				$(command bw "$@")
+			EOF
 			sleep 10
 			xsel --clipboard --delete
 		;;
 		*) command bw "$@" ;;
 	esac
-	trap - INT STOP
+	trap - INT STOP EXIT
 }
 
 cd () {
