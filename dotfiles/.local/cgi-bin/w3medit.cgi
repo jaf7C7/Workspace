@@ -7,7 +7,7 @@
 # Environment: W3M_URL
 
 case "$W3M_URL" in
-	zet:*) file="$ZETTELKAST/${W3M_URL#zet:}" ;;
+	zet:*) file="$ZETTELKAST/${W3M_URL#zet:}.md" ;;
 	file:*) file="${W3M_URL#file://}" ;;
 esac
 
