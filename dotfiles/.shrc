@@ -196,7 +196,18 @@ PS1='$(__ps1)$ '
 
 if [ -n "$BASH_VERSION" ];then
 	# Update tmux/screen window title
-	PROMPT_COMMAND='printf '\''\e_%s\e\\'\'' "${PWD/~/\~}"'
+	case $TERM in
+		screen*)
+			PROMPT_COMMAND='
+				printf '\''\e_%s\e\\'\'' "${PWD/~/\~}"
+			'
+		;;
+		tmux*)
+			PROMPT_COMMAND='
+				printf '\''\e]2;%s\007'\'' "${PWD/~/\~}"
+			'
+		;;
+	esac
 else
 	# Shell name in prompt
 	PS1="$0\$ "
