@@ -67,9 +67,6 @@ if [ -n "$BASH_VERSION" ]; then
 	HISTCONTROL=ignoreboth:erasedups:
 fi
 
-# Xterm
-XFT_DEBUG=3
-
 # Node
 NODE_DISABLE_COLORS=1
 
