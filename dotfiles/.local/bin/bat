@@ -1,9 +1,11 @@
 #!/bin/sh
 #
-# `bat`: Battery monitor.
+# `bat`: Battery monitor
 #
-# Depends: `cat`, `tmux`/`screen`
-# Environment: SCREENDIR, BAT_DIR
+# Dependencies:
+#	- `tmux` or `screen` or `notify-send` (optional)
+# Environment:
+#	- SCREENDIR, BAT_DIR, TMP_DIR
 #
 # Return values:
 #   - 0 (No action required)
@@ -14,60 +16,50 @@
 
 : "${SCREENDIR:=/run/screen/S-joss}"
 : "${BAT_DIR:=/sys/class/power_supply/BAT1}"
+: "${TMP_DIR:="${TMPDIR:="${TMP:=/tmp}"}"}"
 
-usage () {
-	echo 'usage: bat [-q|--quiet] [-m|--monitor]'
+usage() {
+	echo 'usage: bat [-q|-m|-k]'
 } >&2
 
-check_status () {
-	capacity="$(cat "$BAT_DIR/capacity")"
-	status="$(cat "$BAT_DIR/status")"
+error() {
+	printf '%s: ' "${0##*/}"
+	printf '%s\n' "$@"
+	exit 1
+} >&2
+
+check_status() {
+	read -r capacity <"$BAT_DIR/capacity"
+	read -r status <"$BAT_DIR/status"
 	msg="$capacity%"
 
-	case "$status" in
-		Discharging) [ "$capacity" -lt 30 ] && return 1 ;;
-		Charging) msg="~${msg}"; [ "$capacity" -gt 70 ] && return 2 ;;
-		*) return 3 ;;
+	case $status in
+		Discharging)
+			[ "$capacity" -lt 30 ] && return 1
+		;;
+
+		Charging)
+			msg="~${msg}"
+			[ "$capacity" -gt 70 ] && return 2
+		;;
+
+		*)
+			return 3
+		;;
 	esac
 
 	return 0
 }
 
-only_session () {
-	# shellcheck disable=SC2046
-	set -- $(tmux ls -F '#{session_id}')
-	total_sessions=$#
-
-	set -- "$SCREENDIR"/*
-	case "$*" in
-		*[!*]) total_sessions=$((total_sessions + $#))
-	esac
-
-	[ "$total_sessions" -gt 1 ] && return 1
-	return 0
-}
-
-# Tmux doesn't allow duplicate sessions but screen does.
-remove_dups () {
-	screen -qlsS battery_monitor
-	[ $? -le 11 ] && return
-
-	set -- "$SCREENDIR"/*battery_monitor
-	for session do
-		session="${session##*/}"
-
-		screen -qlsS "$session"
-		[ $? -eq 11 ] || continue
-
-		if [ -n "$survivor" ]; then
-			screen -S "$session" -X quit
-		else
-			survivor="$session"
+notify() {
+	if [ -z "${TMUX}${STY}" ]; then
+		if [ -n "$DISPLAY" ] && command -v notify-send >/dev/null 2>&1; then
+			notify-send 'Battery Warning' "<b>$1</b>"
 		fi
-	done
-}
 
-notify () {
+		return
+	fi
+
 	for session in $(tmux ls -F '#{session_id}' 2>/dev/null); do
 		for client in $(tmux lsc -t "$session" -F '#{client_name}'); do
 			tmux display -c "$client" "$1"
@@ -76,50 +68,71 @@ notify () {
 
 	for session in "$SCREENDIR"/*; do
 		session="${session##*/}"
-		case "$(screen -lsS "$session")" in
+
+		case $(screen -lsS $session) in
 			*Attached*) screen -S "$session" -X echo "$1"
 		esac
 	done
-
-	[ -z "${TMUX}${STY}" ] && printf '%s\n' "$1"
 }
 
-main ()
-{
+main() {
+	log_file="$TMP_DIR/bat.log"
+
 	quiet=0
 	monitor=0
-	debug=0
-	while [ $# -gt 0 ]; do
-		case "$1" in
-			-q|--quiet)   quiet=1 ;;
-			-m|--monitor) monitor=1 ;;
-			-d|--debug)   debug=1 ;;
-			-h|--help|*)  usage ;;
+	kill=0
+
+	while getopts :qmkh opt; do
+		case $opt in
+			q) quiet=1 ;;
+			m) monitor=1 ;;
+			k) kill=1 ;;
+			h) usage ;;
+			*) ! usage ;;
 		esac
-		shift
 	done
 
-	if [ "$quiet" -eq 1 ]; then
-		check_status
+	shift $((OPTIND - 1))
+
+	if [ "$kill" -eq 1 ]; then
+		if [ ! -e "$log_file" ]; then
+			error 'unable to kill process: is bat running?'
+		fi
+
+		read -r pid <"$log_file"
+
+		while printf 'Kill battery monitor (%s)? [y/N] ' "$pid"; read -r reply; do
+			case $reply in
+				y) break ;;
+				n) return 1 ;;
+				*) printf '%s\n' '?'; continue ;;
+			esac
+		done
+
+		kill "$pid"
+
+		rm "$log_file"
 		return
 	fi
 
 	if [ "$monitor" -eq 1 ]; then
-		if [ "$debug" -eq 1 ]; then
-			logfile=/tmp/bat.log
-			exec 2>"$logfile"
-			set -x
+		if [ ! -e "$log_file" ]; then
+			: >"$log_file"
+
+			( bat -m & )
+
+			return
 		fi
 
-		while check_status; return=$?; do
-			if only_session; then
-				[ -e "$logfile" ] && rm "$logfile"
-				return 0
-			else
-				remove_dups
-			fi
+		read -r pid <"$log_file"
+		[ -n "$pid" ] && error 'already running'
 
-			case "$return" in
+		printf '%s %s\n' $$ >"$log_file"
+
+		trap '[ -e "$log_file" ] && rm "$log_file"' EXIT
+
+		while check_status; return=$?; do
+			case $return in
 				3) notify "Check battery: $msg" ;;
 				2) notify "Battery full: $msg" ;;
 				1) notify "Low battery: $msg" ;;
@@ -133,7 +146,9 @@ main ()
 
 	check_status
 	return=$?
-	printf '%s\n' "$msg"
+
+	[ "$quiet" -eq 1 ] || printf '%s\n' "$msg"
+
 	return "$return"
 }
 
