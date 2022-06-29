@@ -102,37 +102,38 @@ set +a
 
 # '[19%]joss@lenovo:~/Workspace/dotfiles(master)$ '
 __ps1() {
-	if ! bat -q && [ -z "${TMUX}${STY}" ] && {
-		[ -z "${DISPLAY}" ] || ! command -v notify-send
-	} then
-		printf '[%s]' "$(bat)"
-	fi
-
 	case $PWD in
 		~/*|~) __PWD="~${PWD#~}" ;;
 		*) __PWD="$PWD" ;;
 	esac
 
+	if ! bat -q && [ -z "${TMUX}${STY}${DISPLAY}" ]; then
+		__PS1="[$(bat)]"
+	fi
+
 	if [ -n "$PS1_USER" ]; then
-		printf '%s' "$USER"
+		__PS1="${__PS1}${USER}"
 	fi
 
 	if [ -n "$PS1_HOST" ]; then
-		[ -n "$PS1_USER" ] && printf '@'
-		printf '%s' "$HOSTNAME"
+		[ -n "$PS1_USER" ] && __PS1="${__PS1}@"
+		__PS1="${__PS1}${HOSTNAME}"
 	fi
 
 	if [ -n "$PS1_DIR" ]; then
-		[ -n "$PS1_HOST" ] && printf ':'
-		printf '%s' "$__PWD"
+		[ -n "$PS1_HOST" ] && __PS1="${__PS1}:"
+		__PS1="${__PS1}${__PWD}"
 		unset __PWD
 	fi
 
 	if [ -n "$PS1_GIT" ]; then
 		b="$(git branch --show-current)"
-		[ -n "$b" ] && printf '(%s)' "$b"
+		[ -n "$b" ] && __PS1="${__PS1}($b)"
 		unset b
 	fi
+
+	printf '%s' "$__PS1"
+	unset __PS1
 } 2>/dev/null
 
 ps1() {
