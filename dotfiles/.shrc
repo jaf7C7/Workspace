@@ -3,7 +3,7 @@
 #
 
 # Quit if not interactive
-case "$-" in
+case $- in
 	*i*) : ;;
 	*) exit ;;
 esac
@@ -21,9 +21,16 @@ set -a
 POSIXLY_CORRECT=1
 ENV=~/.shrc
 
-# Timezone and locale
+# Timezone, locale and hostname
 TZ='Europe/London'
 LANG=en_GB.UTF-8
+if [ -z "$HOSTNAME" ]; then
+	if command -v hostname >/dev/null 2>&1; then
+		HOSTNAME="$(hostname)"
+	elif [ -r /etc/hostname ]; then
+		read -r HOSTNAME </etc/hostname
+	fi
+fi
 
 # File system
 STOW_DIR=~/Workspace
@@ -33,10 +40,10 @@ CGI_BIN=~/.local/cgi-bin
 ZETTELKAST=~/Zettelkast
 DOCUMENTS=~/Documents
 BOOKS="$DOCUMENTS/books"
-BOOKMARKS="$DOCUMENTS/bookmarks.md"
+BOOKMARKS=~/.bookmarks.md
 PROJECTS=~/Projects
 BAT_DIR=/sys/class/power_supply/BAT1
-case "$PATH" in
+case $PATH in
 	"$BIN:"*) : ;;
 	*) PATH="$BIN:$PATH" ;;
 esac
@@ -48,7 +55,7 @@ EXINIT='set ai ts=8 sw=8 nows noic noflash'
 
 # Pager
 PAGER=less
-LESS='-Fgj3$R'
+LESS='-Fgj13$R'
 if [ -x /usr/bin/lesspipe ]; then
 	LESSOPEN='| /usr/bin/lesspipe %s'
 	LESSCLOSE='/usr/bin/lesspipe %s %s'
@@ -70,18 +77,18 @@ fi
 # Node
 NODE_DISABLE_COLORS=1
 
-# NPM permissions
+# NPM
 # https://github.com/sindresorhus/guides/blob/main/npm-global-without-sudo.md
 # https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally/
 NPM_CONFIG_PREFIX=~/.npm-global
 NPM_BIN="$NPM_CONFIG_PREFIX/bin"
-case "$PATH" in
+case $PATH in
 	*"$NPM_BIN") : ;;
 	*) PATH="$PATH:$NPM_BIN" ;;
 esac
 if command -v manpath >/dev/null 2>&1; then
 	NPM_MANPATH="$NPM_CONFIG_PREFIX/share/man"
-	case "$MANPATH" in
+	case $MANPATH in
 		*"$NPM_MANPATH") : ;;
 		*) MANPATH="$MANPATH:$NPM_MANPATH" ;;
 	esac
@@ -94,28 +101,17 @@ set +a
 #
 
 # '[19%]joss@lenovo:~/Workspace/dotfiles(master)$ '
-__ps1 () {
-	case "$PWD" in
+__ps1() {
+	if ! bat -q && [ -z "${TMUX}${STY}" ] && {
+		[ -z "${DISPLAY}" ] || ! command -v notify-send
+	} then
+		printf '[%s]' "$(bat)"
+	fi
+
+	case $PWD in
 		~/*|~) __PWD="~${PWD#~}" ;;
 		*) __PWD="$PWD" ;;
 	esac
-
-	if [ -z "$TMUX" ] && [ -z "$STY" ]; then
-		# Battery alert
-		b="[\[0;31m\]$(bat)\[\e[0m\]]"
-		if ! bat --quiet; then
-			case "$PS1" in
-				"$b"*) : ;;
-				*)
-					__OLDPS1="$PS1"
-					export PS1="$b$PS1"
-				;;
-			esac
-		elif [ -n "$__OLDPS1" ]; then
-			PS1="$__OLDPS1"
-		fi
-		unset b __OLDPS1
-	fi
 
 	if [ -n "$PS1_USER" ]; then
 		printf '%s' "$USER"
@@ -133,62 +129,62 @@ __ps1 () {
 	fi
 
 	if [ -n "$PS1_GIT" ]; then
-		b="$(git branch --show-current 2>/dev/null)"
+		b="$(git branch --show-current)"
 		[ -n "$b" ] && printf '(%s)' "$b"
 		unset b
 	fi
-}
+} 2>/dev/null
 
-ps1 () {
-	usage () {
+ps1() {
+	usage() {
 		echo 'usage:    ps1 [ show | hide ] [ all | <segment>... ]'
 		echo 'segments: `user'\'', `host'\'', `dir'\'', `git'\'''
 		return 1
 	}
 
-	show () {
+	show() {
 		[ "$1" = 'all' ] && set -- host user dir git
+
 		for arg do
-			case "$arg" in
+			case $arg in
 				user) export PS1_USER=1 ;;
 				host) export PS1_HOST=1 ;;
-				dir) export PS1_DIR=1 ;;
-				git) export PS1_GIT=1 ;;
-				*) usage ;;
+				dir)  export PS1_DIR=1 ;;
+				git)  export PS1_GIT=1 ;;
+				*)    usage ;;
 			esac
 		done
+
 		unset arg
 	}
 
-	hide () {
+	hide() {
 		[ "$1" = 'all' ] && set -- host user dir git
+
 		for arg do
-			case "$arg" in
+			case $arg in
 				host) unset PS1_HOST ;;
 				user) unset PS1_USER ;;
-				dir) unset PS1_DIR ;;
-				git) unset PS1_GIT ;;
-				*) usage ;;
+				dir)  unset PS1_DIR ;;
+				git)  unset PS1_GIT ;;
+				*)    usage ;;
 			esac
 		done
+
 		unset arg
 	}
 
-	case "$1" in
+	case $1 in
 		short) hide all ;;
-		long) show all ;;
-		show)
-			shift
-			show "$@"
-		;;
-		hide)
-			shift
-			hide "$@"
-		;;
-		*) usage ;;
+		long)  show all ;;
+		show)  shift; show "$@" ;;
+		hide)  shift; hide "$@" ;;
+		*)     usage ;;
 	esac
+
 	unset usage show hide
 }
+
 
 ps1 short
 
@@ -202,6 +198,7 @@ if [ -n "$BASH_VERSION" ];then
 				printf '\''\e_%s\e\\'\'' "${PWD/~/\~}"
 			'
 		;;
+
 		tmux*)
 			PROMPT_COMMAND='
 				printf '\''\e]2;%s\007'\'' "${PWD/~/\~}"
@@ -224,6 +221,7 @@ alias c='clear'
 alias ed='ed -lG'
 alias jobs='jobs -l'
 alias jq='jq --tab --indent 4 --monochrome-output'
+alias psp='ps -o pid,ppid,pgid,tty,args -p'
 alias sed='sed --posix'
 alias tree='tree -n'
 alias x='exit'
@@ -233,30 +231,40 @@ alias z='fg %-'
 # Functions
 #
 
-bw () {
+bw() {
 	trap 'xsel --clipboard --delete; return 1' INT STOP EXIT
-	case "$*" in
-		unlock) export BW_SESSION="$(command bw unlock --raw)" ;;
+
+	case $* in
+		unlock)
+			export BW_SESSION="$(command bw unlock --raw)"
+		;;
+
 		'get password '*)
 			xsel --clipboard --input <<-EOF
 				$(command bw "$@")
 			EOF
+
 			sleep 10
+
 			xsel --clipboard --delete
 		;;
-		*) command bw "$@" ;;
+
+		*)
+			command bw "$@"
+		;;
 	esac
+
 	trap - INT STOP EXIT
 }
 
-cd () {
+cd() {
 	if command cd "$@" >/dev/null; then
 		[ -n "$PS1_DIR" ] || pwd -P
 	fi
 }
 
-wifi () {
-	case "$1" in
+wifi() {
+	case $1 in
 		oneplus) nmcli connection up 'OnePlus 6T' ;;
 		iphone) nmcli connection up 'Faye’s iPhone' ;;
 		zyxel) nmcli connection up 'Zyxel_23A9' ;;
@@ -264,18 +272,43 @@ wifi () {
 	esac
 }
 
-lastcmd () {
+lastcmd() {
 	local cmd=$(fc -ln -1 "$1" "$1")
 	printf '%s\n' "${cmd##[[:space:]]}"
 }
 
-up () {
-	i=1 path='..'
-	while [ "$i" -lt "${1:-1}" ]; do
+up() {
+	path='..'
+
+	while [ $((i)) -lt ${1:-1} ]; do
 		path="$path/.."
 		i=$((i + 1))
 	done
+
 	cd "$path"
+
 	unset i path
 }
 
+getterm() {
+	_pid=$$
+
+	until [ "$tty" = '?' ]; do
+		read -r ppid tty cmd <<-EOF
+			$(ps -p "$_pid" -o ppid=,tty=,comm=)
+		EOF
+
+		_pid="$ppid"
+	done
+
+	echo "$cmd"
+
+	unset _pid ppid tty cmd
+}
+
+#
+# Utilities
+#
+
+# Check and potentially start the battery monitor
+bat -m 2>/dev/null
