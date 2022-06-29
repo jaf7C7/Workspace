@@ -5,7 +5,7 @@
 # Quit if not interactive
 case $- in
 	*i*) : ;;
-	*) exit ;;
+	*) return ;;
 esac
 
 # Vi mode line editing
