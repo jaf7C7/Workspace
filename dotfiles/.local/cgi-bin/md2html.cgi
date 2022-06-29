@@ -6,7 +6,7 @@
 # Environment: QUERY_STRING, ZETTELKAST
 
 case "$QUERY_STRING" in
-	zet:*) file="$ZETTELKAST/${QUERY_STRING#zet:}.md" ;;
+	zet:*) file="$ZETTELKAST/${QUERY_STRING#zet:}" ;;
 	*) file="${QUERY_STRING#*://}" ;;
 esac
 
