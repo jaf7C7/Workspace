@@ -18,6 +18,9 @@ set shiftwidth=8
 set nowrapscan
 set noignorecase
 
+" Not in original vi but necessary for vim.tiny
+set belloff=all 
+
 " Remove annoying defaults
 map  <NOP>
 map  <NOP>
