@@ -13,12 +13,6 @@ defutf8 on
 altscreen on
 layout save default
 
-# Start the battery monitor but not when reloading the config, or
-# when it's already running in another session.
-exec sh -c 'screen -X setenv _SCREEN_RELOAD 1'
-screen 99 sh -c '[ -z "$(screen -X msgwait 0; screen -Q echo \$_SCREEN_RELOAD; screen -X msgwait 4)" ] && { ! tmux has -t battery_monitor && { screen -qlsS battery_monitor; [ $? -lt 11 ]; } && screen -c/dev/null -dmS battery_monitor bat --monitor; screen 0; }'
-unsetenv _SCREEN_RELOAD
-
 # Windowlist shows window hardstatus or current command.
 windowlist title 'Num Name%30L=Status/Cmd%-5=Flags'
 windowlist string '%3n %t%30L=%?%h%:%x%?%L>%-5=%f'
