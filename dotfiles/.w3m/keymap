@@ -89,7 +89,7 @@ keymap	E	LOAD
 keymap	F	NULL
 keymap	G	END
 keymap	H	CURSOR_TOP
-keymap	I	GOTO /cgi-bin/md2html.cgi?/home/joss/Zettelkast/INDEX.md
+keymap	I	GOTO /cgi-bin/md2html.cgi?/home/joss/Zettelkast/INDEX
 keymap	J	NULL
 keymap	K	NULL
 keymap	L	CURSOR_BOTTOM
