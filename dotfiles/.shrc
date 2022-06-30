@@ -55,7 +55,7 @@ EXINIT='set ai ts=8 sw=8 nows noic noflash'
 
 # Pager
 PAGER=less
-LESS='-Fgj13$R'
+LESS='-Fgj13$RX'
 if [ -x /usr/bin/lesspipe ]; then
 	LESSOPEN='| /usr/bin/lesspipe %s'
 	LESSCLOSE='/usr/bin/lesspipe %s %s'
@@ -107,8 +107,10 @@ __ps1() {
 		*) __PWD="$PWD" ;;
 	esac
 
-	if ! bat -q && [ -z "${TMUX}${STY}${DISPLAY}" ]; then
-		__PS1="[$(bat)]"
+	if [ -z "${TMUX}${STY}${DISPLAY}" ]; then
+		b="$(bat -q)"
+		[ -n "$b" ] && __PS1="[$b]"
+		unset b
 	fi
 
 	if [ -n "$PS1_USER" ]; then
