@@ -1,1 +1,33 @@
-/home/joss/Projects/grepurl/grepurl
+#!/bin/sh
+#
+# `grepurl`: Extract urls from a file
+#
+# Depends: `lynx`, `sed`, `rm`
+# Environment: BROWSER
+
+: "${BROWSER:-lynx}"
+
+main ()
+{
+	if [ "$1" = '-n' ]; then
+		shift
+		nobrowser=1
+	fi
+
+	# Section 2: https://www.ietf.org/rfc/rfc2396.txt
+	regex='^.*\(http[=;/?:@&=+$,-.!~*'\''()%#a-zA-Z0-9]*\).*$'
+
+	if [ -n "$nobrowser" ]; then
+		cmd='s/'"$regex"'/\1/p'
+		sed -n "$cmd" "$@"
+	else
+		tmp=/tmp/grepurl-$$.html
+		cmd='s/'"$regex"'/<a href="\1">\1<\/a><br>/p'
+		sed -n "$cmd" "$@" >"$tmp"
+		"$BROWSER" "$tmp"
+		rm "$tmp"
+	fi
+}
+
+main "$@"
+
