@@ -8,7 +8,7 @@
 # Use of `dd` from:
 #	https://raw.githubusercontent.com/dylanaraps/shfm/master/shfm
 #
-# TODO: Only works for single-byte characters.
+# !TODO: Only works for single-byte characters.
 
 usage () {
 	echo 'usage: chcase [ upper | lower | title ] [<string>|<stdin>]'
