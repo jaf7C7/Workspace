@@ -10,6 +10,8 @@
 # Right : RIGHT, ^[[C
 # Left  : LEFT, ^[[D
 
+# TODO: Fix `\` command (view source)
+
 keymap	0	LINE_BEGIN
 
 keymap	~	GOTO_HOME
