@@ -5,18 +5,15 @@
 # Source: https://www.virtualbox.org/wiki/Linux_Downloads
 # Documentation: https://www.oracle.com/technical-resources/articles/it-infrastructure/admin-manage-vbox-cli.html
 
-# Quit if not amd64 arch.
+# Get processor architecture
 arch=$(dpkg --print-architecture)
-case $arch in
-	*amd64) : ;;
-	*) echo "unsupported architecture $arch" >&2 ; exit 1 ;;
-esac
 
 # Update the package index
 sudo apt-get update
 
 # Install the dependencies
-sudo apt-get install ca-certificates curl gnupg lsb-release linux-headers-amd64
+# See https://www.virtualbox.org/manual/ch02.html#install-linux-host
+sudo apt-get install ca-certificates curl gnupg lsb-release linux-headers-$(uname -r)
 
 # Add the gpg key to the gpg keyring
 curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc \
