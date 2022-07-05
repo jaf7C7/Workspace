@@ -314,4 +314,4 @@ getterm() {
 #
 
 # Check and potentially start the battery monitor
-bat -m 2>/dev/null
+#bat -m 2>/dev/null
