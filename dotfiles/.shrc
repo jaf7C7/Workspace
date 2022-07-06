@@ -309,6 +309,29 @@ getterm() {
 	unset _pid ppid tty cmd
 }
 
+todo() {
+	if [ "$1" = '-e' ]; then
+		vi +'/todo()/;/[^-]EOF$/' ~/.shrc
+		return
+	fi
+
+	cat <<-EOF
+	+ make an interactive bash script to test cocktail knowledge
+	+ finish setting up virtual machines
+	+ rewrite cocktails.bash in javascript (with a web front-end
+	  *and* CLI)
+	+ finish all shell utilities to a good standard with excellent
+	  documentation
+	+ finish LHTL course
+	+ finish eloquent javascript
+	+ finish 'cw' utility
+	+ create personal (static) site to showcase projects, generated
+	  with markdown and pandoc
+	+ finish winc course
+	+ more javascript web projects...
+	EOF
+}
+
 #
 # Utilities
 #
