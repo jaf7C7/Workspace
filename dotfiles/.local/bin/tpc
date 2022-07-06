@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# `tpc` : Test your cocktail knowledge
+
+# Each cocktail is represented as an associative array. The script will
+# iterate through the list of cocktails and ask in turn:
+#
+# 	1. Glassware?
+# 	2. Ice?
+# 	3. Method?
+# 	4. Ingredients?
+# 	5. Garnish?
+#
+# It will parse the response, and calculate the end score. The score is
+# recorded in `~/.tpc` and the next round will be in reverse score order
+# (lowest score -> highest score), so the most difficult to remember will
+# be done first.
+
+# NOTE: Arrays in Bash cannot be nested!
+# NOTE: Associative arrays were introduced in Bash 4, so they aren't
+# available in default OS X Bash.
+
+# Note that ingredients are of the form '$ingredient:$quantity'.
+declare -A very_peri=(
+	glassware 'flute'
+	ice       'none'
+	method    'build'
+	ingred_1  'prebatch:40ml'
+	ingred_2  'prosecco:top'
+	garnish   'paint card'
+)
+
+# `${!very_peri[@]}` expands to each of the *keys* of associative array
+# `very_peri`. Whereas `${very_peri[@]}` expands to each of the *values*.
+#
+# NOTE: `${!very_peri[@]}` is *not* an array, but a variable expansion
+# performed on the associative array `very_peri`. For example:
+# `echo ${!very_peri[0]}` returns nothing.
+echo 'Very Peri'
+for item in "${!very_peri[@]}"; do
+	echo "$item: ${very_peri[$item]}"
+done
+
