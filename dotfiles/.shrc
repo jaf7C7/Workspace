@@ -33,6 +33,7 @@ if [ -z "$HOSTNAME" ]; then
 fi
 
 # File system
+TMP_DIR=/tmp
 STOW_DIR=~/Workspace
 DOTFILES="$STOW_DIR/dotfiles"
 BIN=~/.local/bin
@@ -188,7 +189,6 @@ ps1() {
 	unset usage show hide
 }
 
-
 ps1 short
 
 PS1='$(__ps1)$ '
@@ -197,13 +197,13 @@ if [ -n "$BASH_VERSION" ];then
 	# Update tmux/screen window title
 	case $TERM in
 		screen*)
-			PROMPT_COMMAND='
+			PROMPT_COMMAND[1]='
 				printf '\''\e_%s\e\\'\'' "${PWD/~/\~}"
 			'
 		;;
 
 		tmux*)
-			PROMPT_COMMAND='
+			PROMPT_COMMAND[1]='
 				printf '\''\e]2;%s\007'\'' "${PWD/~/\~}"
 			'
 		;;
@@ -275,11 +275,6 @@ wifi() {
 	esac
 }
 
-lastcmd() {
-	local cmd=$(fc -ln -1 "$1" "$1")
-	printf '%s\n' "${cmd##[[:space:]]}"
-}
-
 up() {
 	path='..'
 
@@ -291,22 +286,6 @@ up() {
 	cd "$path"
 
 	unset i path
-}
-
-getterm() {
-	_pid=$$
-
-	until [ "$tty" = '?' ]; do
-		read -r ppid tty cmd <<-EOF
-			$(ps -p "$_pid" -o ppid=,tty=,comm=)
-		EOF
-
-		_pid="$ppid"
-	done
-
-	echo "$cmd"
-
-	unset _pid ppid tty cmd
 }
 
 todo() {
@@ -337,4 +316,5 @@ todo() {
 #
 
 # Check and potentially start the battery monitor
-#bat -m 2>/dev/null
+[ -e "$TMP_DIR/bat.log" ] && read -r pid _ <"$TMP_DIR/bat.log"
+kill -0 "$pid" 2>/dev/null || ( bat -m & )
