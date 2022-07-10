@@ -1,10 +1,9 @@
 "
 " When in doubt:
-"
-" 'An Introduction To Display Editing With Vi' https://docs.freebsd.org/44doc/usd/12.vi/paper.html
-" 'Ex Reference Manual'                        https://docs.freebsd.org/44doc/usd/10.exref/paper.html
-" 'Differences between Vim and Vi'             https://vimhelp.org/vi_diff.txt.html#/
-" 'compatible' - vimhelp.org                   https://vimhelp.org/options.txt.html#%27compatible%27
+" https://docs.freebsd.org/44doc/usd/12.vi/paper.html
+" https://docs.freebsd.org/44doc/usd/10.exref/paper.html
+" https://vimhelp.org/vi_diff.txt.html#/
+" https://vimhelp.org/options.txt.html#%27compatible%27
 "
 
 "
@@ -18,17 +17,28 @@ set shiftwidth=8
 set nowrapscan
 set noignorecase
 
-" Not in original vi but necessary for vim.tiny
-set belloff=all 
-
 " Remove annoying defaults
 map  <NOP>
 map  <NOP>
 map K <NOP>
 
-" Useful macros
-map @! :w|!clear && node %
-map @$ :w|!tmux splitw bash -c 'node -i -e "$(< %)"'
+" sh
+map @s :w|!clear && sh %
+map @S :w|!S=$(tmux splitw -P sh); tmux send -t$S '. %' Enter
+
+" bash
+map @b :w|!clear && bash %
+map @B :w|!S=$(tmux splitw -P bash); tmux send -t$S 'source %' Enter
+
+" node
+map @n :w|!clear && node %
+map @N :w|!tmux splitw sh -c 'node -i -e "$(cat %)"'
+
+"  
+" Vim version has no 'eval' (vim.tiny/vim-minimal)
+"  
+
+set belloff=all 
 
 " Appearance
 hi ColorColumn  cterm=NONE      ctermfg=7    ctermbg=0
@@ -53,7 +63,7 @@ hi Visual       cterm=reverse   ctermfg=NONE ctermbg=NONE
 hi WarningMsg   cterm=NONE      ctermfg=NONE ctermbg=NONE
 
 "
-" Vim version has 'eval' (vimrc)
+" Vim version has 'eval' (vim.basic/vim-enhanced)
 "
 if 1
 
