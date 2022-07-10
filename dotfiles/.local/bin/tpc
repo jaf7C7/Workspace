@@ -1,43 +1,302 @@
 #!/bin/bash
 #
 # `tpc` : Test your cocktail knowledge
-
+# 
 # Each cocktail is represented as an associative array. The script will
 # iterate through the list of cocktails and ask in turn:
-#
+# 
 # 	1. Glassware?
 # 	2. Ice?
 # 	3. Method?
 # 	4. Ingredients?
 # 	5. Garnish?
-#
+# 
 # It will parse the response, and calculate the end score. The score is
 # recorded in `~/.tpc` and the next round will be in reverse score order
 # (lowest score -> highest score), so the most difficult to remember will
 # be done first.
 
-# NOTE: Arrays in Bash cannot be nested!
-# NOTE: Associative arrays were introduced in Bash 4, so they aren't
-# available in default OS X Bash.
-
-# Note that ingredients are of the form '$ingredient:$quantity'.
 declare -A very_peri=(
-	glassware 'flute'
-	ice       'none'
-	method    'build'
-	ingred_1  'prebatch:40ml'
-	ingred_2  'prosecco:top'
-	garnish   'paint card'
+	name     'very peri'
+	glass    'flute'
+	ice      'none'
+	method   'build'
+	ingred_1 'prebatch - 40ml'
+	ingred_2 'prosecco - top'
+	garnish  'paint card'
+)
+
+declare -A taco_tuesdays=(
+	name     'taco tuesdays'
+	glass    'highball'
+	ice      'none'
+	method   'shake & strain'
+	ingred_1 'prebatch - 70ml'
+	ingred_2 'pineapple juice - 60ml'
+	garnish  'pineapple leaf, mezcal spray, teeny hat'
+)
+
+declare -A joe_lycheeni=(
+	name     'joe lycheeni'
+	glass    'nic & nora'
+	ice      'none'
+	method   'share & fine-strain'
+	ingred_1 'prebatch - 65ml'
+	ingred_2 'rubicon lychee juice - 50ml'
+	garnish  'pineapple rock, cheetah print fabric'
+)
+
+declare -A the_gold_bar=(
+	name     'the gold bar'
+	glass    'nic & nora'
+	ice      'none'
+	method   'shake & fine-strain'
+	ingred_1 'prebatch - 55ml'
+	ingred_2 'gold chocolate - 50ml'
+	garnish  'grated gold chocolate'
+)
+
+declare -A the_vice_city=(
+	name     'the vice city'
+	glass    'nic & nora'
+	ice      'none'
+	method   'shake & fine-strain'
+	ingred_1 'prebatch - 90ml'
+	ingred_2 'cranberry juice - 25ml'
+	garnish  'glowstick'
+)
+
+declare -A brummie_rummy_old_fashioned=(
+	name     'brummie rummy old fashioned'
+	glass    'rocks'
+	ice      'cubed'
+	method   'stir'
+	ingred_1 'prebatch - 55ml'
+	ingred_2 'apple juice - 50ml'
+	garnish  'dehdrated mable apple'
+)
+
+declare -A green_light=(
+	name     'green light'
+	glass    'rocks'
+	ice      'cubed'
+	method   'build'
+	ingred_1 'prebatch - 70ml'
+	ingred_2 'cawston apple - top'
+	garnish  'squid game card'
+)
+
+declare -A red_light=(
+	name     'red light'
+	glass    'rocks'
+	ice      'cubed'
+	method   'build'
+	ingred_1 'prebatch - 60ml'
+	ingred_2 'orange juice - 25ml'
+	ingred_3 'ting - top'
+	garnish  'squid game card'
+)
+
+declare -A great_gats_bee=(
+	name     'great gats bee'
+	glass    'nic & nora'
+	ice      'none'
+	method   'full prebatched'
+	ingred_1 'prebatch - 72.5ml'
+	garnish  'honeycomb in a comb'
+)
+
+declare -A unbongo_juice=(
+	name     'unbongo juice'
+	glass    'highball'
+	ice      'cubed'
+	method   'shake & strain'
+	ingred_1 'prebatch - 80ml'
+	indred_2  'ting - top'
+	garnish  'smiley sweet on a stick'
+)
+
+declare -A haiti_fizz=(
+	name     'haiti fizz'
+	glass    'wine'
+	ice      'cubed'
+	method   'build'
+	ingred_1 'prebatch - 25ml'
+	ingred_2 'pstar mix - 50ml'
+	ingred_3 'prosecco - top'
+	garnish  'luggage tag'
+)
+
+declare -A the_gambol=(
+	name     'the gambol'
+	glass    'nic & nora'
+	ice      'none'
+	method   'shake & fine-strain'
+	ingred_1 'prebatch - 100ml'
+	ingred_2 'orange juice - 25ml'
+	garnish  'dehydrated orange'
+)
+
+declare -A mango_unchained=(
+	name     'mango unchained'
+	glass    'highball'
+	ice      'cubed'
+	method   'shake & strain'
+	ingred_1 'prebatch - 70ml'
+	ingred_2 'rubicon mango juice - 30ml'
+	ingred_3 'lemonade - top'
+	garnish  'pegged bay leaf'
+)
+
+declare -A fever_105=(
+	name     'fever 105'
+	glass    'highball'
+	ice      'cubed'
+	method   'shake & strain'
+	ingred_1 'prebatch - 70ml'
+	ingred_2 'pineapple juice - 25ml'
+	ingred_3 'lemonade - top'
+	garnish  'dehydrated pineapple'
+)
+
+declare -A italian_spritz=(
+	name     'italian spritz'
+	glass    'wine'
+	ice      'cubed'
+	method   'pour'
+	ingred_1 'crodino - 1 bottle'
+	garnish  'orange wedge'
+)
+
+declare -A blueberry_and_basil_french_martini=(
+	name     'blueberry & basil french martini'
+	glass    'nic & nora'
+	ice      'none'
+	method   'shake & fine-strain'
+	ingred_1 'lyres dry london spirit - 20ml'
+	ingred_2 'monin blueberry - 15ml'
+	ingred_3 'giffard strawberry syrup - 5ml'
+	ingred_4 'basil leaves - 5'
+	garnish  'basil leaf'
+)
+
+declare -A orchard_fizz=(
+	name     'orchard fizz'
+	glass    'highball'
+	ice      'cubed'
+	method   'build'
+	ingred_1 'gooseberry cordial - 25ml'
+	ingred_2 'apple juice - 25ml'
+	ingred_3 'ODK lime juice - 5ml'
+	ingred_4 'tonic - top'
+	garnish  'mini apple'
+)
+
+declare -A v_for_vega=(
+	name     'v for vega'
+	glass    'highball'
+	ice      'cubed'
+	method   'build'
+	ingred_1 'pstar mix - 50ml'
+	ingred_2 'cawston rhubard - top'
+	garnish  '1/2 passion fruit'
+)
+
+declare -A tea_and_elderflower_fizz=(
+	name     'tea and elderflower fizz'
+	glass    'highball'
+	ice      'cubed'
+	method   'build'
+	ingred_1 'vanilla tea cordial - 30ml'
+	ingred_2 'apple & elderflower cordial - 15ml'
+	ingred_3 'cawston elderflower - top'
+	garnish  'edible flower'
+)
+
+declare -A pornstar_martini=(
+	name     'pornstar martini'
+	glass    'coup'
+	ice      'none'
+	method   'shake & fine-strain'
+	ingred_1 'koskenkorva vodka - 25ml'
+	ingred_2 'chinola - 25ml'
+	ingred_3 'pstart mix - 100ml'
+	garnish  '1/2 passion fruit & shot prosecco'
+)
+
+declare -A espresso_martini=(
+	name     'espresso martini'
+	glass    'coup'
+	ice      'none'
+	method   'shake & fine-strain'
+	ingred_1 'koskenkorva vodka - 25ml'
+	ingred_2 'borghetti - 25ml'
+	ingred_3 'fresh espresso - 2'
+	ingred_4 'vanilla syrup - 20ml'
+	garnish  'grated nutmeg'
+)
+
+declare -A french_martini=(
+	name     'french martini'
+	glass    'coup'
+	ice      'none'
+	method   'shake & fine-strain'
+	ingred_1 'koskenkorva vodka - 25ml'
+	ingred_2 'chambord - 25ml'
+	ingred_3 'pineapple juice - 50ml'
+	ingred_4 'giffard raspberry syrup - 15ml'
+	garnish  'flowers & dried raspberry'
+)
+
+declare -A london_calling=(
+	name     'london calling'
+	glass    'nic & nora'
+	ice      'none'
+	method   'shake & fine-strain'
+	ingred_1 'dr. eamers dry gin - 40ml'
+	ingred_2 'tio peppe sherry - 15ml'
+	ingred_3 'ODK lemon juice - 15ml'
+	ingred_4 '2:1 syrup - 15ml'
+	garnish  'orange penny'
+)
+
+declare -A trinidad_sour=(
+	name     'trinidad sour'
+	glass    'coup'
+	ice      'none'
+	method   'reverse dry-shake and fine-strain'
+	ingred_1 'angosturra bitters - 25ml'
+	ingred_2 'JD rye - 10ml'
+	ingred_3 'ODK lemon juice - 25ml'
+	ingred_4 'giffard orgeat syrup - 20ml'
+	ingred_5 'egg white - 1'
+	garnish  'bitters swirl'
+)
+
+declare -A negroni=(
+	name     'negroni'
+	glass    'rocks'
+	ice      'block'
+	method   'stir'
+	ingred_1 'prebatch - 75ml'
+	garnish  'orange penny'
+)
+
+declare -A old_fashioned=(
+	name     'old fashioned'
+	glass    'rocks'
+	ice      'block'
+	method   'stir'
+	ingred_1 'prebatch - 75ml'
+	garnish  'orange penny'
 )
 
 # `${!very_peri[@]}` expands to each of the *keys* of associative array
 # `very_peri`. Whereas `${very_peri[@]}` expands to each of the *values*.
 #
-# NOTE: `${!very_peri[@]}` is *not* an array, but a variable expansion
-# performed on the associative array `very_peri`. For example:
+# NOTE- `${!very_peri[@]}` is *not* an array, but a variable expansion
+# performed on the associative array `very_peri`. For example-
 # `echo ${!very_peri[0]}` returns nothing.
-echo 'Very Peri'
-for item in "${!very_peri[@]}"; do
-	echo "$item: ${very_peri[$item]}"
-done
 
+# How to pass the name of an associative array to a function which can
+# then access the keys and values of that array?
