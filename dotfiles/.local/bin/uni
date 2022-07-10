@@ -1,1 +1,13 @@
-/home/joss/Projects/uni/uni
+#!/usr/bin/perl -CS
+#
+# `uni` : Print unicode char from codepoint
+
+use warnings;
+use strict;
+
+sub main() {
+	eval "print(\"\\N{U+$ARGV[0]}\\n\")";
+}
+
+main()
+
