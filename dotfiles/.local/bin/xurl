@@ -1,11 +1,15 @@
 #!/bin/sh
 #
-# `grepurl`: Extract urls from a file
+# `xurl`: Extract urls from a file
 #
-# Depends: `lynx`, `sed`, `rm`
-# Environment: BROWSER
-
+# Dependencies:
+# - `lynx`, `sed`, `rm`
+#
+# Environment:
 : "${BROWSER:-lynx}"
+
+# !TODO: Often output URLs will have closing brackets or quotes from
+# surrounding text.
 
 main ()
 {
