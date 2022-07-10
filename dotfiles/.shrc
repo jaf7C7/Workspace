@@ -290,25 +290,26 @@ up() {
 
 todo() {
 	if [ "$1" = '-e' ]; then
-		vi +'/todo()/;/[^-]EOF$/' ~/.shrc
+		vi +'/todo()/;/^EOF/' ~/.shrc
 		return
 	fi
 
-	cat <<-EOF
-	+ make an interactive bash script to test cocktail knowledge
-	+ finish setting up virtual machines
-	+ rewrite cocktails.bash in javascript (with a web front-end
-	  *and* CLI)
-	+ finish all shell utilities to a good standard with excellent
-	  documentation
-	+ finish LHTL course
-	+ finish eloquent javascript
-	+ finish 'cw' utility
-	+ create personal (static) site to showcase projects, generated
-	  with markdown and pandoc
-	+ finish winc course
-	+ more javascript web projects...
-	EOF
+	cat <<EOF
++ move bookmarks to zettelkast
++ finish 'bk' (bookmarks) script
++ interactive bash script to test cocktail knowledge
++ rewrite cocktails.bash in javascript
++ set up virtual machines
++ finish all shell utilities to a good standard with excellent documentation
++ finish LHTL course
++ finish eloquent javascript
++ finish 'cw' utility
++ finish winc course
++ personal site with markdown and pandoc
++ chrome extension to bypass ft paywall (see https://tinyurl.com/5xvszczj)
++ web front-end for cocktails.js
++ more javascript web projects...
+EOF
 }
 
 #
