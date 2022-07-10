@@ -1,0 +1,117 @@
+#!/bin/sh
+#
+# `bk` : Bookmark manager
+#
+# Dependencies:
+# - POSIX `ex` `printf` `stty` `[` `sort`
+#
+# Environment:
+: "${BOOKMARKS:="$HOME/.bookmarks.md"}"
+
+# !TODO: Bookmarks should probably go in the Zettelkast, since the `zet` tool
+# has all the functionality to search/edit/browse as is desirable here. And so
+# this script can just become a simple wrapper around `zet`, if it needs to
+# exist at all.
+
+exec 3>&2
+exec 4<&0
+
+exec 2>/tmp/log # debug
+set -x # debug
+
+list() {
+	while IFS= read -r line; do
+		case $line in
+			[!*]*|'') continue
+		esac
+
+		title="${line#*[}" title="${title%](*}"
+		url="${line#*](}" url="${url%)*}"
+		domain="${url#*//}" domain="${domain%%/*}"
+		
+		set -- "$@" "$url"
+
+		line="$((i))) \\033[32m$domain\\033[0m: $title"
+
+		# `${#line} - 15` because non-printing chars are counted
+		# in line length, and there are 15 non-printing chars in
+		# `$line`
+		# 
+		# `L` tracks used screen lines so the output can be
+		# correctly paginated.
+		[ $((${#line} - 15)) -ge $((cols)) ] && L=$((L + 1))
+
+		printf '%b\n' "$line"
+
+		i=$((i + 1)) L=$((L + 1))
+
+		[ $((L)) -eq $((lines - 2)) ] || continue
+
+		help='?) help, q) quit, n) next page, <num>) select'
+
+		printf 'Select bookmark: %s\n' "$help"
+
+		while {
+			printf '>> '
+			read -r reply <&4
+		} do
+			case $reply in
+				n)        L=0 break ;;
+				q)        exit ;;
+				\?)       printf '%s\n' "$help"; continue ;;
+				*[!0-9]*) printf '?\n'; continue ;;
+				*)        shift $((reply)); break 2 ;;
+			esac
+		done
+	done >&3 <"$BOOKMARKS"
+
+	printf '%s\n' "$1"
+}
+
+add() {
+	for url do
+		printf 'title? '
+		IFS= read -r title
+		set -- "$@" "$title" "$url"
+		shift
+	done
+
+	[ $# -gt 0 ] || return 1
+
+	ex -s "$BOOKMARKS" <<-EOF
+		\$a
+		$(printf '* [%s](%s)\n' "$@")
+		.
+		3,\$!sort
+		wq
+	EOF
+}
+
+main() {
+	read -r lines cols <<-EOF
+		$(stty size)
+	EOF
+
+	case $1 in ''|-)
+		set --
+		while read -r url; do
+			set -- "$@" "$url"
+		done
+	esac
+
+	while getopts :l opt; do
+		case $opt in
+			l) func='list'
+		esac
+	done
+
+	shift $((OPTIND - 1))
+
+	case $func in
+		'') add "$@" ;;
+		list) list "$@" ;;
+	esac
+}
+
+main "$@"
+
