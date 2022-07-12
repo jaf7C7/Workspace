@@ -17,7 +17,7 @@ dictcommand file:///$LIB/w3mdict.cgi
 multicol 0
 alt_entity 0
 graphic_char 0
-display_borders 0
+display_borders 1
 fold_textarea 0
 display_ins_del 1
 ignore_null_img_alt 1
@@ -83,8 +83,8 @@ mailto_options 1
 mailer 
 extbrowser "$GUIBROWSER" &
 extbrowser2 url=%s; if [ -n "$TMUX" ]; then tmux setb "$url"; elif [ -n "$STY" ]; then screen -X register . "$url"; else echo "$url" >/tmp/x; fi
-extbrowser3 url=%s; printf '(send to) '; read -r command; $command "$url"
-extbrowser4 url=%s; case "$url" in *.md) pandoc -f markdown-smart -t html5 "$url" | w3m -T text/html ;; esac
+extbrowser3 
+extbrowser4 
 extbrowser5 
 extbrowser6 
 extbrowser7 

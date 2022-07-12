@@ -83,7 +83,7 @@ keymap	x	NULL
 keymap	y	DOWN
 keymap	z	CENTER_V
 
-keymap	A	EXTERN "url=%s; printf '\033[H\033[2J(title) '; IFS= read -r title; printf '%s\n' '$a' \"* [$title]($url)\" '.' '3,$!sort' 'wq' | ex -s \"$BOOKMARKS\""
+keymap	A	EXTERN "url=%s; printf '\033[H\033[2J(title) '; IFS= read -r title; bk -a \"$url\" -t \"$title\""
 keymap	B	BACK
 keymap	C	NULL
 keymap	D	NULL
