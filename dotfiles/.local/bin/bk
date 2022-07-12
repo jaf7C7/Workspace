@@ -3,17 +3,20 @@
 # `bk` : Bookmark manager
 #
 # Dependencies:
-# - POSIX `[` `printf` `read` `getopts`
+# - POSIX `[` `printf` `read` `getopts` `stty`
 # - `zet`
 #
-# Environment: -
+# Environment:
+: "${ZETTELKAST:-"$HOME/Zettelkast"}"
+: "${BROWSER:-lynx}"
+
+exec 3>&2
 
 usage() {
 	printf '%s\n' \
 	'USAGE: bk -h' \
 	'       bk <query>' \
 	'       bk -a <url> [-t <title>]' \
-	'       bk -e <query>' \
 	'' \
 	'OPTIONS: -h  Display this message.' \
 	'         -a  Add <url> as a bookmark. If no <url> is specified,' \
@@ -21,15 +24,127 @@ usage() {
 	'             the `-t'\'' option, the user is prompted for one.' \
 	'         -t  For use with `-a'\''. Adds title <title> to the new' \
 	'             bookmark.' \
-	'         -i  ignore case when searching' \
-	'         -e  Search bookmarks for <query> and interactively select' \
-	'             a result to open in EDITOR' \
 	'' \
 	'If no options are passed, the default behaviour is to search for' \
 	'bookmarks matching <query> and interactively select one to open in' \
 	'BROWSER'
 	exit
 } >&2
+
+prompt() {
+	printf '%s' 'Select a bookmark: ?) help, q) quit '
+	[ "$i" -lt $# ] && printf '%s' 'n) next page '
+	printf '%s\n%s' '<num>) select' '>> '
+	read -r reply
+} >&3
+
+# The argument array is populated by "$url $title" strings, so we need to
+# split out the url to pass to the browser.
+print() {
+	for arg do
+		shift
+		set -- "$@" "${arg%% *}"
+	done
+
+	printf '%s\n' "$@"
+}
+
+select_menu() {
+	# The select menu takes zet IDs as input, but needs to return a
+	# URL from the selected bookmark file. The title corresponding to
+	# each URL also needs to remain "attached" to its URL, in order
+	# to print informative list items.
+	# 
+	# POSIX shell only has a single array, which is already in use
+	# to track the position and order of each item in the list. And
+	# if the number of parameters or their order changes, the select
+	# menu won't work.
+	# 
+	# Since URLs do not contain any spaces, it's possible to sneak an
+	# extra variable into the array by simply concatenating the URL
+	# and the title together with a space. And so it remains trivial
+	# to split it again into separate variables.
+	for id do
+		while IFS= read -r line; do
+			case $line in
+				'# '*)    title="${line#\# *}" ;;
+				*\<http*) url="${line#*<}" url="${url%>*}" ;;
+			esac
+		done <"$ZETTELKAST/$id"
+
+		shift
+
+		set -- "$@" "$url $title"
+	done
+
+	case $# in
+		0) return 1 ;;
+		1) print "$@"; return ;;
+	esac
+	
+	read -r lines cols <<-EOF
+		$(stty size)
+	EOF
+
+	i=0
+	for arg do
+		url="${arg%% *}"
+		title="${arg#"$url"}"
+		domain="${url#*//}" domain="${domain%%/*}"
+
+		# E.g. `2) pubs.opengroup.com: POSIX Spec 2018`
+		line="$i) \\033[32m${domain}\\033[0m: $title"
+
+		# `L` tracks used screen lines, and increments here if a line
+		# wraps at the edge of the screen.
+		[ ${#line} -ge $((cols)) ] && L=$((L + 1))
+
+		printf '%b\n' "$line" >&3
+
+		i=$((i + 1)) L=$((L + 1))
+
+		# The prompt is only displayed once either all items have
+		# been displayed, or the screen is full.
+		[ $((L)) -lt $((lines - 2)) ] && [ "$i" -lt $# ] && continue
+
+		while prompt "$@"; do
+			case $reply in
+				q)
+					return
+				;;
+
+				n)
+					[ "$i" -lt $# ] && L=0 break
+					printf 'No more pages to display\n' >&3
+					return
+				;;
+
+				a)
+					print "$@"
+					return
+				;;
+
+				\?|*[!0-9]*)
+					continue
+				;;
+
+				*)
+					shift $((reply))
+					set -- "$1"
+					print "$@"
+					return
+				;;
+			esac
+		done
+	done
+}
+
+open() {
+	# Word splitting here is intentional and safe:
+	# shellcheck disable=SC2046
+	set -- $(select_menu $(zet -irs '+Bookmarks' "$@"))
+	[ $# -gt 0 ] && "$BROWSER" "$@"
+}
 
 add() {
 	if [ $# -eq 0 ]; then
@@ -59,27 +174,15 @@ add() {
 	done
 }
 
-open() {
-	[ "$flag" = 'ignorecase' ] && i='i'
-	zet -${i}b +Bookmarks "$@"
-}
-
-edit() {
-	[ "$flag" = 'ignorecase' ] && i='i'
-	zet -${i}e +Bookmarks "$@"
-}
-
 main() {
 	case $1 in
 		-|'') func='add'
 	esac
 	
-	while getopts :aeiht: opt; do
+	while getopts :aht: opt; do
 		case $opt in
 			a) func='add' ;;
-			e) func='edit' ;;
 			h) usage ;;
-			i) flag='ignorecase' ;;
 			t) func='add' title="$OPTARG" ;;
 			*) ! usage ;;
 		esac
@@ -89,7 +192,6 @@ main() {
 
 	case $func in
 		add)  add "$@" ;;
-		edit) edit "$@" ;;
 		*)    open "$@" ;;
 	esac
 }
