@@ -41,7 +41,6 @@ CGI_BIN=~/.local/cgi-bin
 ZETTELKAST=~/Zettelkast
 DOCUMENTS=~/Documents
 BOOKS="$DOCUMENTS/books"
-BOOKMARKS=~/.bookmarks.md
 PROJECTS=~/Projects
 BAT_DIR=/sys/class/power_supply/BAT1
 case $PATH in
@@ -55,7 +54,7 @@ EDITOR=vi
 EXINIT='set ai ts=8 sw=8 nows noic noflash'
 
 # Pager
-PAGER=less
+PAGER=more
 LESS='-Fgj13$RX'
 if [ -x /usr/bin/lesspipe ]; then
 	LESSOPEN='| /usr/bin/lesspipe %s'
@@ -66,7 +65,7 @@ MANPAGER=w3m
 MANLESS='--Manual page $MAN_PN--?PB(%PB\%).'
 
 # Browser
-BROWSER=w3m
+BROWSER=lynx
 GUIBROWSER=firefox
 WWW_HOME=https://lite.duckduckgo.com/lite
 
