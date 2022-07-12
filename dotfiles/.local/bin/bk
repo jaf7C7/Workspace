@@ -3,10 +3,33 @@
 # `bk` : Bookmark manager
 #
 # Dependencies:
-# - POSIX `[` `printf` `read`
+# - POSIX `[` `printf` `read` `getopts`
 # - `zet`
 #
 # Environment: -
+
+usage() {
+	printf '%s\n' \
+	'USAGE: bk -h' \
+	'       bk <query>' \
+	'       bk -a <url> [-t <title>]' \
+	'       bk -e <query>' \
+	'' \
+	'OPTIONS: -h  Display this message.' \
+	'         -a  Add <url> as a bookmark. If no <url> is specified,' \
+	'             <url> is read from stdin. If no <title> is given (via' \
+	'             the `-t'\'' option, the user is prompted for one.' \
+	'         -t  For use with `-a'\''. Adds title <title> to the new' \
+	'             bookmark.' \
+	'         -i  ignore case when searching' \
+	'         -e  Search bookmarks for <query> and interactively select' \
+	'             a result to open in EDITOR' \
+	'' \
+	'If no options are passed, the default behaviour is to search for' \
+	'bookmarks matching <query> and interactively select one to open in' \
+	'BROWSER'
+	exit
+} >&2
 
 add() {
 	if [ $# -eq 0 ]; then
@@ -18,10 +41,12 @@ add() {
 	for url do
 		printf 'url: %s\n' "$url"
 
-		# Read user input from stderr, as stdin may be reading
-		# from a pipe.
-		printf 'title: '
-		IFS= read -r title <&2
+		if [ -z "$title" ]; then
+			# Read user input from stderr, as stdin may be
+			# attached to a pipe.
+			printf 'title: '
+			IFS= read -r title <&2
+		fi
 
 		zet - <<-EOF
 		# $title
@@ -34,11 +59,38 @@ add() {
 	done
 }
 
+open() {
+	[ "$flag" = 'ignorecase' ] && i='i'
+	zet -${i}b +Bookmarks "$@"
+}
+
+edit() {
+	[ "$flag" = 'ignorecase' ] && i='i'
+	zet -${i}e +Bookmarks "$@"
+}
+
 main() {
 	case $1 in
-		-a|-|'') add "$@" ;;
-		-e)      zet -e +Bookmarks "$@" ;;
-		*)       zet -b +Bookmarks "$@" ;;
+		-|'') func='add'
+	esac
+	
+	while getopts :aeiht: opt; do
+		case $opt in
+			a) func='add' ;;
+			e) func='edit' ;;
+			h) usage ;;
+			i) flag='ignorecase' ;;
+			t) func='add' title="$OPTARG" ;;
+			*) ! usage ;;
+		esac
+	done
+
+	shift $((OPTIND - 1))
+
+	case $func in
+		add)  add "$@" ;;
+		edit) edit "$@" ;;
+		*)    open "$@" ;;
 	esac
 }
 
