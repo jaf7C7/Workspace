@@ -1,302 +1,293 @@
-#!/bin/bash
-#
-# `tpc` : Test your cocktail knowledge
-# 
-# Each cocktail is represented as an associative array. The script will
-# iterate through the list of cocktails and ask in turn:
-# 
-# 	1. Glassware?
-# 	2. Ice?
-# 	3. Method?
-# 	4. Ingredients?
-# 	5. Garnish?
-# 
-# It will parse the response, and calculate the end score. The score is
-# recorded in `~/.tpc` and the next round will be in reverse score order
-# (lowest score -> highest score), so the most difficult to remember will
-# be done first.
+#!/bin/node
 
-declare -A very_peri=(
-	name     'very peri'
-	glass    'flute'
-	ice      'none'
-	method   'build'
-	ingred_1 'prebatch - 40ml'
-	ingred_2 'prosecco - top'
-	garnish  'paint card'
-)
+/*
+ * `tpc` : Test your cocktail knowledge
+ * 
+ * Each cocktail is represented as an object. The script will
+ * iterate through the list of cocktail objects and ask in turn:
+ * 
+ * 	1. Glassware?
+ * 	2. Ice?
+ * 	3. Method?
+ * 	4. Ingredients?
+ * 	5. Garnish?
+ * 	6. Alcoholic?
+ * 
+ * It will parse the response, and calculate the end score. The score is
+ * recorded in `~/.tpc` and the next round will be in reverse score order
+ * (lowest score -> highest score), so the most difficult to remember will
+ * be done first.
+ * 
+ * If the '--hard' flag is passed, then the prebatch ingredients are also
+ * quizzed.
+ */
 
-declare -A taco_tuesdays=(
-	name     'taco tuesdays'
-	glass    'highball'
-	ice      'none'
-	method   'shake & strain'
-	ingred_1 'prebatch - 70ml'
-	ingred_2 'pineapple juice - 60ml'
-	garnish  'pineapple leaf, mezcal spray, teeny hat'
-)
+// TODO: Read "Eloquent Javascript" chapters about node modules before
+// going further with this.
+// 
+// Import file system module to allow file system operations.
+// See https://nodejs.org/api/fs.html#file-system
+const fs = require("fs");
 
-declare -A joe_lycheeni=(
-	name     'joe lycheeni'
-	glass    'nic & nora'
-	ice      'none'
-	method   'share & fine-strain'
-	ingred_1 'prebatch - 65ml'
-	ingred_2 'rubicon lychee juice - 50ml'
-	garnish  'pineapple rock, cheetah print fabric'
-)
+// Global array of all known cocktail objects.
+let cocktails = [];
 
-declare -A the_gold_bar=(
-	name     'the gold bar'
-	glass    'nic & nora'
-	ice      'none'
-	method   'shake & fine-strain'
-	ingred_1 'prebatch - 55ml'
-	ingred_2 'gold chocolate - 50ml'
-	garnish  'grated gold chocolate'
-)
+class Cocktail {
+	constructor(name, glass, ice, method, prebatch, ingredients, garnish,
+	            alcoholic) {
+		this.name = name;
+		this.glass = glass;
+		this.ice = ice;
+		this.method = method;
+		this.prebatch = prebatch;
+		this.ingredients = ingredients;
+		this.garnish = garnish;
+		this.alcoholic = alcoholic;
+		cocktails.push(this);
+	}
+}
 
-declare -A the_vice_city=(
-	name     'the vice city'
-	glass    'nic & nora'
-	ice      'none'
-	method   'shake & fine-strain'
-	ingred_1 'prebatch - 90ml'
-	ingred_2 'cranberry juice - 25ml'
-	garnish  'glowstick'
-)
+const veryPeri = new Cocktail(
+	"very peri", "flute", "none", "build",
+	{"monin lavender": "10ml", "giffard raspberry syrup": "10ml",
+	 "bitter truth violet liqueur": "10ml", "citric mix": "10ml",
+	 "kummel wolfschmidt": "6 dashes"},
+	{"prebatch": "40ml", "prosecco": "top"},
+	["paint card"],
+	true
+);
 
-declare -A brummie_rummy_old_fashioned=(
-	name     'brummie rummy old fashioned'
-	glass    'rocks'
-	ice      'cubed'
-	method   'stir'
-	ingred_1 'prebatch - 55ml'
-	ingred_2 'apple juice - 50ml'
-	garnish  'dehdrated mable apple'
-)
+const tacoTuesdays = new Cocktail(
+	"taco tuesdays", "highball", "cubes", "shake & strain",
+	{"tapatio tequila": "20ml", "midori": "20ml", "ilegal mezcal": "5ml",
+	 "2:1 syrup": "15ml"},
+	{"prebatch": "60ml", "pineapple juice": "60ml"},
+	["pineapple leaf", "mezcal spray", "teeny hat"],
+	true
+);
 
-declare -A green_light=(
-	name     'green light'
-	glass    'rocks'
-	ice      'cubed'
-	method   'build'
-	ingred_1 'prebatch - 70ml'
-	ingred_2 'cawston apple - top'
-	garnish  'squid game card'
-)
+const joeLycheeni = new Cocktail(
+	"joe lycheeni", "nic & nora", "none", "shake & fine-strain",
+	{"koskenkorva blueberry vodka": "20ml",
+	 "gabriel boudier lychee liqueur": "30ml",
+	 "giffard raspberry syrup": "15ml",
+	 "spanish bitters": "2 dashes"},
+	{"prebatch": "65ml", "rubicon lychee juice": "50ml"},
+	["cheetah print fabric"],
+	true
+);
 
-declare -A red_light=(
-	name     'red light'
-	glass    'rocks'
-	ice      'cubed'
-	method   'build'
-	ingred_1 'prebatch - 60ml'
-	ingred_2 'orange juice - 25ml'
-	ingred_3 'ting - top'
-	garnish  'squid game card'
-)
+const theGoldBar = new Cocktail(
+	"the gold bar", "nic & nora", "none", "shake & fine-strain",
+	{"h by hine": "20ml", "five farms": "20ml", "vanilla syrup": "15ml"},
+	{"prebatch": "55ml", "gold chocolate": "50ml"},
+	["grated gold chocolate"],
+	true
+);
 
-declare -A great_gats_bee=(
-	name     'great gats bee'
-	glass    'nic & nora'
-	ice      'none'
-	method   'full prebatched'
-	ingred_1 'prebatch - 72.5ml'
-	garnish  'honeycomb in a comb'
-)
+const theViceCity = new Cocktail(
+	"the vice city", "nic & nora", "none", "shake & fine-strain",
+	{"tapatio tequila": "25ml", "gabriel boudier cassis": "10ml",
+	 "d.o.m. benectine": "5ml", "vanilla tea syrup": "15ml",
+	 "giffard ginger syrup": "10ml", "odk lime juice": "25ml"},
+	{"prebatch": "90ml", "cranberry juice": "25ml"},
+	["glowstick"],
+	true
+);
 
-declare -A unbongo_juice=(
-	name     'unbongo juice'
-	glass    'highball'
-	ice      'cubed'
-	method   'shake & strain'
-	ingred_1 'prebatch - 80ml'
-	indred_2  'ting - top'
-	garnish  'smiley sweet on a stick'
-)
+const brummieRummyOldFashioned = new Cocktail(
+	"brummie rummy old fashioned", "rocks", "cubed", "stir",
+	{"kingston black": "25ml", "burning barn spiced rum": "10ml",
+	 "giffard banana du bresil": "15ml", "vanilla syrup": "5ml",
+	 "jerry thomas bitters": "1 dash"},
+	{"prebatch": "55ml", "apple juice": "50ml"},
+	["dehydrated mable apple"],
+	true
+);
 
-declare -A haiti_fizz=(
-	name     'haiti fizz'
-	glass    'wine'
-	ice      'cubed'
-	method   'build'
-	ingred_1 'prebatch - 25ml'
-	ingred_2 'pstar mix - 50ml'
-	ingred_3 'prosecco - top'
-	garnish  'luggage tag'
-)
+const greenLight = new Cocktail(
+	"green light", "rocks", "cubed", "build",
+	{"midori": "25ml", "veritas rum": "10ml", "yuzushu": "5ml",
+	 "blue curacao": "5ml", "odk lime juice": "15ml", "2:1 syrup": "10ml"},
+	{"prebatch": "70ml", "cawston apple": "top"},
+	["squid game card"],
+	true
+);
 
-declare -A the_gambol=(
-	name     'the gambol'
-	glass    'nic & nora'
-	ice      'none'
-	method   'shake & fine-strain'
-	ingred_1 'prebatch - 100ml'
-	ingred_2 'orange juice - 25ml'
-	garnish  'dehydrated orange'
-)
+const redLight = new Cocktail(
+	"red light", "rocks", "cubed", "build",
+	{"malfy rosa gin": "20ml", "aperol": "30ml",
+	 "giffard strawberry syrup": "10ml"},
+	{"prebatch": "60ml", "orange juice": "25ml", "ting": "top"},
+	["squid game card"],
+	true
+);
 
-declare -A mango_unchained=(
-	name     'mango unchained'
-	glass    'highball'
-	ice      'cubed'
-	method   'shake & strain'
-	ingred_1 'prebatch - 70ml'
-	ingred_2 'rubicon mango juice - 30ml'
-	ingred_3 'lemonade - top'
-	garnish  'pegged bay leaf'
-)
+const greatGatsBee = new Cocktail(
+	"great gats-bee", "nic & nora", "none", "fully prebatched",
+	{"lazzaroni amaretto": "20ml", "chocolate bitters": "2 dashes",
+	 "h by hine": "12.5ml", "heather mead": "30ml",
+	 "2:1 syrup": "15ml"},
+	{"prebatch": "72.5ml"},
+	["honeycomb in a cone"],
+	true
+);
 
-declare -A fever_105=(
-	name     'fever 105'
-	glass    'highball'
-	ice      'cubed'
-	method   'shake & strain'
-	ingred_1 'prebatch - 70ml'
-	ingred_2 'pineapple juice - 25ml'
-	ingred_3 'lemonade - top'
-	garnish  'dehydrated pineapple'
-)
+const unbongoJuice = new Cocktail(
+	"unbongo juice", "highball", "cubed", "shake & strain",
+	{"veritas rum": "25ml", "giffard banana du bresil": "15ml",
+	 "monin blueberry": "15ml", "blood tonic cordial": "15ml",
+	 "odk lime juice": "10ml"},
+	{"prebatch": "80ml", "ting": "top"},
+	["smiley sweet on a stick"],
+	true
+);
 
-declare -A italian_spritz=(
-	name     'italian spritz'
-	glass    'wine'
-	ice      'cubed'
-	method   'pour'
-	ingred_1 'crodino - 1 bottle'
-	garnish  'orange wedge'
-)
+const haitiFizz = new Cocktail(
+	"haiti fizz", "wine", "cubed", "build",
+	{"clairin communal rum": "5ml", "yuzushu": "10ml",
+	 "2:1 syrup": "10ml"},
+	{"prebatch": "25ml", "pstar mix": "50ml"},
+	{"prosecco": "top"},
+	["luggage tag"],
+	true
+);
 
-declare -A blueberry_and_basil_french_martini=(
-	name     'blueberry & basil french martini'
-	glass    'nic & nora'
-	ice      'none'
-	method   'shake & fine-strain'
-	ingred_1 'lyres dry london spirit - 20ml'
-	ingred_2 'monin blueberry - 15ml'
-	ingred_3 'giffard strawberry syrup - 5ml'
-	ingred_4 'basil leaves - 5'
-	garnish  'basil leaf'
-)
+const theGambol = new Cocktail(
+	"the gambol", "nic & nora", "none", "shake & fine-strain", 
+	{"beluga vodka": "10ml", "tio pepe sherry": "50ml",
+	 "odk lemon juice": "10ml", "gooseberry cordial": "30ml"},
+	{"prebatch": "100ml", "orange juice": "25ml"},
+	["dehydrated orange"],
+	true
+);
 
-declare -A orchard_fizz=(
-	name     'orchard fizz'
-	glass    'highball'
-	ice      'cubed'
-	method   'build'
-	ingred_1 'gooseberry cordial - 25ml'
-	ingred_2 'apple juice - 25ml'
-	ingred_3 'ODK lime juice - 5ml'
-	ingred_4 'tonic - top'
-	garnish  'mini apple'
-)
+const mangoUnchained = new Cocktail(
+	"mango unchained", "highball", "cubed", "shake & strain",
+	{"barsol pisco italia": "20ml", "gabiel boudier mango": "15ml",
+	 "suze": "5ml", "odk lime juice": "15ml",
+	 "raspberry syrup": "15ml"},
+	{"prebatch": "70ml", "rubicon mango juice": "30ml", "lemonade": "top"},
+	["pegged bay leaf"],
+	true
+);
 
-declare -A v_for_vega=(
-	name     'v for vega'
-	glass    'highball'
-	ice      'cubed'
-	method   'build'
-	ingred_1 'pstar mix - 50ml'
-	ingred_2 'cawston rhubard - top'
-	garnish  '1/2 passion fruit'
-)
+const fever105 = new Cocktail(
+	"fever 105", "highball", "cubed", "shake & strain",
+	{"veritas rum": "20ml", "green chartreuse": "20ml",
+	 "giffard strawberry syrup": "20ml", "odk lime juice": "10ml"},
+ 	{"prebatch": "70ml", "pineapple juice": "25ml", "lemonade": "top"},
+	["dehydrated pineapple"],
+	true
+);
 
-declare -A tea_and_elderflower_fizz=(
-	name     'tea and elderflower fizz'
-	glass    'highball'
-	ice      'cubed'
-	method   'build'
-	ingred_1 'vanilla tea cordial - 30ml'
-	ingred_2 'apple & elderflower cordial - 15ml'
-	ingred_3 'cawston elderflower - top'
-	garnish  'edible flower'
-)
+const italianSpritz = new Cocktail(
+	"italian spritz (non-alcoholic)", "wine", "cubed", "pour",
+	{"crodino": "1 bottle"},
+	["orange wedge"],
+	false
+);
 
-declare -A pornstar_martini=(
-	name     'pornstar martini'
-	glass    'coup'
-	ice      'none'
-	method   'shake & fine-strain'
-	ingred_1 'koskenkorva vodka - 25ml'
-	ingred_2 'chinola - 25ml'
-	ingred_3 'pstart mix - 100ml'
-	garnish  '1/2 passion fruit & shot prosecco'
-)
+const blueberryAndBasilFrenchMartini = new Cocktail(
+	"blueberry and basil french martini", "nic & nora", "none",
+	"shake & fine-strain",
+	{"lyres dry london spirit": "20ml", "monin blueberry": "15ml",
+	 "giffard strawberry syrup": "5ml", "basil leaves": "5",
+	 "pineapple juice": "100ml"},
+	["basil leaf"],
+	false
+);
 
-declare -A espresso_martini=(
-	name     'espresso martini'
-	glass    'coup'
-	ice      'none'
-	method   'shake & fine-strain'
-	ingred_1 'koskenkorva vodka - 25ml'
-	ingred_2 'borghetti - 25ml'
-	ingred_3 'fresh espresso - 2'
-	ingred_4 'vanilla syrup - 20ml'
-	garnish  'grated nutmeg'
-)
+const orchardFizz = new Cocktail(
+	"orchard fizz", "highball", "cubed", "build",
+	{"gooseberry cordial": "25ml", "apple juice": "25ml",
+	 "odk lime juice": "5ml", "tonic": "top"},
+	["mini apple"],
+	false
+);
 
-declare -A french_martini=(
-	name     'french martini'
-	glass    'coup'
-	ice      'none'
-	method   'shake & fine-strain'
-	ingred_1 'koskenkorva vodka - 25ml'
-	ingred_2 'chambord - 25ml'
-	ingred_3 'pineapple juice - 50ml'
-	ingred_4 'giffard raspberry syrup - 15ml'
-	garnish  'flowers & dried raspberry'
-)
+const vForVega = new Cocktail(
+	"v for vega", "highball", "cubed", "build",
+	{"pstar mix": "50ml", "cawston rhubarb": "top"},
+	["1/2 passion fruit"],
+	false
+);
 
-declare -A london_calling=(
-	name     'london calling'
-	glass    'nic & nora'
-	ice      'none'
-	method   'shake & fine-strain'
-	ingred_1 'dr. eamers dry gin - 40ml'
-	ingred_2 'tio peppe sherry - 15ml'
-	ingred_3 'ODK lemon juice - 15ml'
-	ingred_4 '2:1 syrup - 15ml'
-	garnish  'orange penny'
-)
+const teaAndElderflowerFizz = new Cocktail(
+	"tea and elderflower fizz", "highball", "cubed", "build",
+	{"vanilla tea cordial": "30ml", "apple & elderflower cordial": "15ml",
+	 "cawston elderflower": "top"},
+	["edible flower"],
+	false
+);
 
-declare -A trinidad_sour=(
-	name     'trinidad sour'
-	glass    'coup'
-	ice      'none'
-	method   'reverse dry-shake and fine-strain'
-	ingred_1 'angosturra bitters - 25ml'
-	ingred_2 'JD rye - 10ml'
-	ingred_3 'ODK lemon juice - 25ml'
-	ingred_4 'giffard orgeat syrup - 20ml'
-	ingred_5 'egg white - 1'
-	garnish  'bitters swirl'
-)
+const pornstarMartini = new Cocktail(
+	"pornstar martini", "coup", "none", "shake & fine-strain",
+	{"koskenkorva vodka": "25ml", "chinola": "25ml", "pstar mix": "100ml"},
+	["1/2 passion fruit", "shot prosecco"],
+	true
+);
 
-declare -A negroni=(
-	name     'negroni'
-	glass    'rocks'
-	ice      'block'
-	method   'stir'
-	ingred_1 'prebatch - 75ml'
-	garnish  'orange penny'
-)
+const espressoMartini = new Cocktail(
+	"espresso martini", "coup", "none", "shake & fine-strain",
+	{"koskenkorva vodka": "25ml", "borghetti": "25ml",
+	 "fresh espresso": "2", "vanilla syrup": "20ml"},
+	["grated nutmeg"],
+	true
+);
 
-declare -A old_fashioned=(
-	name     'old fashioned'
-	glass    'rocks'
-	ice      'block'
-	method   'stir'
-	ingred_1 'prebatch - 75ml'
-	garnish  'orange penny'
-)
+const frenchMartini = new Cocktail(
+	"french martini", "coup", "none", "shake & fine-strain",
+	{"koskenkorva vodka": "25ml", "chambord": "25ml",
+	 "pineapple juice": "50ml", "giffard raspberry syrup": "15ml"},
+	["flowers & dried raspberry"],
+	true
+);
 
-# `${!very_peri[@]}` expands to each of the *keys* of associative array
-# `very_peri`. Whereas `${very_peri[@]}` expands to each of the *values*.
-#
-# NOTE- `${!very_peri[@]}` is *not* an array, but a variable expansion
-# performed on the associative array `very_peri`. For example-
-# `echo ${!very_peri[0]}` returns nothing.
+const londonCalling = new Cocktail(
+	"london calling", "nic & nora", "none", "shake & fine-strain",
+	{"dr. eamers' dry gin": "40ml", "tio peppe sherry": "15ml",
+	 "odk lemon juice": "15ml", "2:1 syrup": "15ml",
+	 "spanish bitters": "2 dashes"},
+	["orange penny"],
+	true
+);
 
-# How to pass the name of an associative array to a function which can
-# then access the keys and values of that array?
+const trinidadSour = new Cocktail(
+	"trinidad sour", "coup", "none", "reverse dry-shake & fine-strain",
+	{"angosturra bitters": "25ml", "jd rye": "10ml",
+	 "odk lemon juice": "25ml", "giffard orgeat syrup": "20ml",
+	 "egg white": "1"},
+	["bitters swirl"],
+	true
+);
+
+const negroni = new Cocktail(
+	"negroni", "rocks", "block", "stir",
+	{"dr. eamers gin": "25ml", "cocchi di torino": "25ml",
+	 "campari": "25ml"},
+	{"prebatch": "75ml"},
+	["orange penny"],
+	true
+);
+
+const oldFashioned = new Cocktail(
+	"old fashioned", "rocks", "block", "stir",
+	{"old fashioned syrup": "15ml", "buffalo trace": "60ml"},
+	{"prebatch": "75ml"},
+	["orange penny"],
+	true
+);
+
+const main = args => {
+	let hardMode = false;
+
+	switch (args[0]) {
+		case "-h": case "--hard":
+		hardMode = true;
+	}
+
+	console.log(cocktails);
+}
+
+main(process.argv.slice(2));
