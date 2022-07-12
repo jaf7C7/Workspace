@@ -34,6 +34,9 @@ map @B :w|!S=$(tmux splitw -P bash); tmux send -t$S 'source %' Enter
 map @n :w|!clear && node %
 map @N :w|!tmux splitw sh -c 'node -i -e "$(cat %)"'
 
+" github markdown preview in the terminal
+map @m :w|!md %
+
 "  
 " Vim version has no 'eval' (vim.tiny/vim-minimal)
 "  
