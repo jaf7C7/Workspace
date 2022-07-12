@@ -7,5 +7,4 @@
 #	e: file:/cgi-bin/test.cgi?%s
 # will mark strings with 'e: ...' as uris and invoke test.cgi
 
-test: file:/cgi-bin/test.cgi?%s
 zet: file:/cgi-bin/md2html.cgi?%s 

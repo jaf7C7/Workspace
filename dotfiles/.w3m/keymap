@@ -38,7 +38,7 @@ keymap	\'	NEXT_MARK
 keymap	";"	SELECT_MENU
 keymap	:	COMMAND
 keymap	|	PIPE_BUF
-keymap	\\	GOTO /cgi-bin/w3mviewsrc.cgi
+keymap	\\	SOURCE
 keymap	?	SEARCH_BACK
 keymap	/	SEARCH_FORE
 keymap	,	EXTERN
