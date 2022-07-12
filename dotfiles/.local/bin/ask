@@ -1,1 +1,60 @@
-/home/joss/Projects/ask/ask
+#!/bin/sh
+#
+# `ask` : Quick web search.
+#
+# Depends: `lynx`
+# Environment: BROWSER
+#
+# Duckduckgo search syntax: https://help.duckduckgo.com/duckduckgo-help-pages/results/syntax'
+# Duckduckgo results settings: https://duckduckgo.com/params'
+
+: "${BROWSER:=lynx}"
+
+usage () {
+	echo 'usage: ask [-s <site-keyword>] <search-term>'
+	echo 'site keywords: bashwiki => wiki.bash-hackers.org'
+	echo '               tldp => tldp.org'
+	echo '               jsinfo => javascript.info'
+	echo '               mdn => developer.mozilla.org'
+	echo '               posix => pubs.opengroup.org/cgi/kman4.cgi'
+	echo '               so => stackoverflow.com'
+	echo '               vimhelp => vimhelp.org'
+	echo '               vimwiki => vim.fandom.com'
+	echo '               whatwg => html.spec.whatwg.org'
+	echo '               wooledge => mywiki.wooledge.org'
+	exit
+} >&2
+
+main ()
+{
+	case "$1" in
+		-h) usage ;;
+		-s) site="$2" shift 2 ;;
+	esac
+
+	[ $# -gt 0 ] || ! usage
+
+	case "$site" in
+		bashwiki) site='https://wiki.bash-hackers.org' ;;
+		tldp) site='https://tldp.org' ;;
+		jsinfo) site='https://javascript.info' ;;
+		mdn) site='https://developer.mozilla.org' ;;
+		posix) url='https://pubs.opengroup.org/cgi/kman4.cgi?value=' \
+		       unset site ;;
+		so) site='https://stackoverflow.com' ;;
+		vimhelp) site='https://vimhelp.org' ;;
+		vimwiki) site='https://vim.fandom.com' ;;
+		whatwg) site='https://html.spec.whatwg.org' ;;
+		wooledge) site='https://mywiki.wooledge.org' ;;
+	esac
+
+	[ -z "$url" ] && url='https://lite.duckduckgo.com/lite?q='
+
+	# Lazy url-encoding of the query string.
+	IFS='+' query="$*${site++site:"$site"}"
+
+	exec "$BROWSER" "${url}${query}"
+}
+
+main "$@"
+
