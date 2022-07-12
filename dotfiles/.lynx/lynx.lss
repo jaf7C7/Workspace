@@ -79,17 +79,8 @@ menu.sb:                   default:       default:default
 # more than one class.
 # 
 
-# Duckduckgo results page link text
-span.link-text:            dim:           green
-
-# Posix manual page command synopsis
-blockquote.synopsis:       default:       default
-
 # Stackoverflow question title:
-a.question-hyperlink:      reverse:       bold
-
-# Github lastest commit message
-a.Link--secondary:         dim:           green
+a.question-hyperlink:      reverse:       bold+magenta
 
 #
 # Special handling for link.
