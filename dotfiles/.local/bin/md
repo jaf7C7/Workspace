@@ -7,10 +7,9 @@
 
 : "${BROWSER:=lynx}"
 
-main ()
-{
+main() {
 	tmp=/tmp/md.html
-	pandoc -f markdown+smart -t html5 "$@" -o "$tmp"
+	pandoc -f gfm -t html5 "$@" -o "$tmp"
 	"$BROWSER" "$tmp"
 	rm "$tmp"
 }
