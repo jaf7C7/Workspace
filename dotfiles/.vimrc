@@ -22,17 +22,20 @@ map  <NOP>
 map  <NOP>
 map K <NOP>
 
-" sh
+" Toggle line numbers
+map @# :set nu!
+
+" Sh
 map @s :w|!clear && sh %
-map @S :w|!S=$(tmux splitw -P sh); tmux send -t$S '. %' Enter
+map @S :w|!tmux send -t$(tmux splitw -P sh) '. %' Enter
 
-" bash
+" Bash
 map @b :w|!clear && bash %
-map @B :w|!S=$(tmux splitw -P bash); tmux send -t$S 'source %' Enter
+map @B :w|!tmux send -t$(tmux splitw -P bash) 'source %' Enter
 
-" node
+" Node
 map @n :w|!clear && node %
-map @N :w|!tmux splitw sh -c 'node -i -e "$(cat %)"'
+map @N :w|!tmux splitw bash -c 'node -i -e "$(< %)"'
 
 " github markdown preview in the terminal
 map @m :w|!md %
