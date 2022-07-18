@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# `todo` : TODO manager
+
+get_local() {
+	set -- $(find \( -name .git -o -name .gitignore \) -prune \
+			-o -type f -print)
+
+	while IFS= read -r line; do
+		task="${line#*TODO:}"
+		file="${line%%:*}"
+		[ "$task" ] || continue
+		printf ':::::::: %s ::::::::\n%s\n' "$file" "$task"
+	done <<-EOF
+		$(grep 'TODO' "$@")
+	EOF
+}
+
+edit_global() {
+	vi +'/todo()/;/^EOF/' "$0"
+}
+
+main() {
+	case $1 in
+		-e) edit_global ;;
+		-l) get_local ;;
+		*) cat <<\EOF ;;
++ get scans of qualification certs
++ apply for apprenticeships
++ set up virtual machines
++ finish all shell projects + full documentation
++ finish LHTL course
++ finish eloquent javascript
++ finish winc course
++ finish 'cw' utility
++ personal site with markdown and pandoc
++ web front-end for cocktails.js
++ chrome extension to bypass ft paywall https://tinyurl.com/5xvszczj
++ more javascript web projects...
++ apply for more apprenticeships and web dev jobs
+EOF
+	esac
+}
+
+main "$@"
+
