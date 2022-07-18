@@ -287,34 +287,3 @@ up() {
 	unset i path
 }
 
-todo() {
-	if [ "$1" = '-e' ]; then
-		vi +'/todo()/;/^EOF/' ~/.shrc
-		return
-	fi
-
-	cat <<EOF
-+ move bookmarks to zettelkast
-+ finish 'bk' (bookmarks) script
-+ interactive bash script to test cocktail knowledge
-+ rewrite cocktails.bash in javascript
-+ set up virtual machines
-+ finish all shell utilities to a good standard with excellent documentation
-+ finish LHTL course
-+ finish eloquent javascript
-+ finish 'cw' utility
-+ finish winc course
-+ personal site with markdown and pandoc
-+ chrome extension to bypass ft paywall (see https://tinyurl.com/5xvszczj)
-+ web front-end for cocktails.js
-+ more javascript web projects...
-EOF
-}
-
-#
-# Utilities
-#
-
-# Check and potentially start the battery monitor
-[ -e "$TMP_DIR/bat.log" ] && read -r pid _ <"$TMP_DIR/bat.log"
-kill -0 "$pid" 2>/dev/null || ( bat -m & )
